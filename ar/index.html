@@ -90,6 +90,7 @@ button{font-family:'Kanit',sans-serif;color:var(--ink)}
 .tray .blk{width:auto;flex:1;height:72px;gap:2px}
 .tray .blk span{pointer-events:none}
 .blk .n{position:absolute;top:-8px;left:-6px;background:var(--ink);color:#fff;border-radius:999px;font-size:11px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none}
+.aim{outline:4px solid #fff;outline-offset:3px;box-shadow:0 0 0 7px rgba(232,180,0,.85)!important}
 .blk.now{border-color:var(--ink);transform:translateY(-5px)}
 .blk.bad{border-color:var(--bad);animation:bad .5s ease-in-out 2}
 @keyframes bad{50%{transform:scale(1.1)}}
@@ -379,16 +380,17 @@ function moveTo(x,y){
   if(!drag.moved&&Math.hypot(x-drag.sx,y-drag.sy)>10){drag.moved=true;makeGhost();}
   if(!drag.moved)return;
   drag.ghost.style.left=x+'px';drag.ghost.style.top=y+'px';
-  const over=hitAt(x,y);
+  const over=hitAt(x,y,drag.hand);
   railEl.classList.toggle('hot',!!over.rail);
   railEl.querySelectorAll('.hole').forEach(h=>h.classList.toggle('hot',over.hole===h));
 }
-function hitAt(x,y){
+function hitAt(x,y,byHand){
   const el=document.elementFromPoint(x,y);
-  if(!el)return{};
-  const hole=el.closest('.hole');
-  const rail=el.closest('#rail');
-  const chip=el.closest('#rail [data-idx]');
+  let hole=el&&el.closest('.hole'), rail=el&&el.closest('#rail'), chip=el&&el.closest('#rail [data-idx]');
+  if(byHand){ // hands are less precise: accept drops near the rail/holes
+    if(!hole)hole=nearestOf('#rail .hole',x,y,45);
+    if(!rail&&distTo(railEl,x,y)<60)rail=railEl;
+  }
   return{hole,rail,chip};
 }
 function drop(x,y){
@@ -405,7 +407,7 @@ function drop(x,y){
     }
     return;
   }
-  const over=hitAt(x,y);
+  const over=hitAt(x,y,d.hand);
   if(d.from==='rail'){
     const moving=d.inner?prog[d.idx].body:prog[d.idx];
     if(!over.rail){ // remove
@@ -533,12 +535,14 @@ async function loadLandmarker(){
   catch(e){return await mod.HandLandmarker.createFromOptions(fs,opts('CPU'));}
 }
 // map normalized video coords -> screen, accounting for object-fit:cover and mirroring
+// the hand only needs to move inside the central part of the camera view to reach every screen edge
+const REACH={x0:.18,x1:.82,y0:.14,y1:.80};
 function toScreen(nx,ny){
-  const v=$('cam');const vw=v.videoWidth||1280,vh=v.videoHeight||720;
-  const W=innerWidth,H=innerHeight;const s=Math.max(W/vw,H/vh);
-  const dw=vw*s,dh=vh*s;let x=nx*dw-(dw-W)/2,y=ny*dh-(dh-H)/2;
-  if(facing==='user')x=W-x;
-  return[x,y];
+  const W=innerWidth,H=innerHeight;
+  let ux=(nx-REACH.x0)/(REACH.x1-REACH.x0), uy=(ny-REACH.y0)/(REACH.y1-REACH.y0);
+  ux=Math.min(1,Math.max(0,ux));uy=Math.min(1,Math.max(0,uy));
+  if(facing==='user')ux=1-ux;
+  return[ux*W,uy*H];
 }
 // shared by real tracking and the test hook
 function feedHand(x,y,pinch){
@@ -547,18 +551,28 @@ function feedHand(x,y,pinch){
   handEl.style.left=hx+'px';handEl.style.top=hy+'px';handEl.classList.add('show');
   if(pinch&&!pinching){
     pinching=true;handEl.classList.add('pinch');
-    const el=document.elementFromPoint(hx,hy);
-    if(pick(el,hx,hy)){drag.hand=true;}else pinchEl=el&&el.closest('button,.pill,.rl');
+    const el=nearestGrab(hx,hy)||document.elementFromPoint(hx,hy);
+    if(pick(el,hx,hy)){drag.hand=true;drag.moved=true;makeGhost();}else pinchEl=nearestPress(hx,hy);
   }else if(!pinch&&pinching){
     pinching=false;handEl.classList.remove('pinch');
     if(drag&&drag.hand)drop(hx,hy);
-    else if(pinchEl){const el=document.elementFromPoint(hx,hy);if(el&&el.closest('button,.pill,.rl')===pinchEl&&!pinchEl.disabled)pinchEl.click();}
+    else if(pinchEl){if(nearestPress(hx,hy)===pinchEl&&!pinchEl.disabled)pinchEl.click();}
     pinchEl=null;
   }
   if(drag&&drag.hand)moveTo(hx,hy);
+  else{
+    const g=nearestGrab(hx,hy)||nearestPress(hx,hy);
+    if(g!==hoverEl){if(hoverEl)hoverEl.classList.remove('aim');hoverEl=g;if(g)g.classList.add('aim');}
+  }
 }
+let hoverEl=null;
+const MAG=70; // px: how far from a block the pinch still grabs it
+function distTo(el,x,y){const r=el.getBoundingClientRect();const dx=Math.max(r.left-x,0,x-r.right),dy=Math.max(r.top-y,0,y-r.bottom);return Math.hypot(dx,dy);}
+function nearestOf(sel,x,y,max){let best=null,bd=max;document.querySelectorAll(sel).forEach(el=>{const d=distTo(el,x,y);if(d<bd){bd=d;best=el;}});return best;}
+function nearestGrab(x,y){return running?null:nearestOf('#tray .blk, #rail .blk',x,y,MAG);}
+function nearestPress(x,y){return nearestOf('button:not(:disabled), .rl',x,y,40);}
 function lostHand(){
-  handEl.classList.remove('show');
+  handEl.classList.remove('show');if(hoverEl){hoverEl.classList.remove('aim');hoverEl=null;}
   if(pinching){pinching=false;handEl.classList.remove('pinch');if(drag&&drag.hand)drop(hx,hy);pinchEl=null;}
   hx=hy=0;
 }

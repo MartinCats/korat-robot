@@ -4,149 +4,179 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>หุ่นยนต์ส่งของเมืองโคราช</title>
-<meta name="description" content="เกมฝึกเขียนอัลกอริทึมด้วยการ์ดคำสั่ง วิทยาการคำนวณ ม.1">
+<meta name="description" content="เกมฝึกเขียนอัลกอริทึมด้วยบล็อกคำสั่ง พาหุ่นยนต์ส่งของรอบเมืองโคราช วิทยาการคำนวณ ม.1">
+<meta name="theme-color" content="#FBF7EF">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#1E2A44; --paper:#FBF7EF; --accent:#A84F12; --line:#E4DCCB;
+  --ink:#1E2A44; --ink2:#5b6478; --paper:#FBF7EF; --card:#ffffff; --line:#EAE2D2; --accent:#A84F12; --accent2:#C8661E;
   --f:#8CCB9B; --r:#8EC3EA; --l:#F4D35E; --rep:#F2A65A; --bad:#C62828; --ok:#2E7D32;
+  --shadow:0 1px 2px rgba(30,42,68,.06),0 8px 24px rgba(30,42,68,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Sarabun',system-ui,sans-serif}
-body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-.wrap{max-width:520px;margin:0 auto;padding:12px 14px 28px}
-h1{font-family:'Kanit',sans-serif;font-weight:600;font-size:22px;margin:4px 0 2px;display:flex;align-items:center;gap:8px}
-.sub{font-size:14px;color:#5b6478;margin:0 0 10px}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;font-family:'Kanit';font-size:15px;border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
-.tab.on{background:var(--ink);color:#fff}
-.mission{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin:10px 0}
-.mission b{font-family:'Kanit';font-weight:600;font-size:17px;display:block}
-.mission span{font-size:15px}
-.boardwrap{display:grid;grid-template-columns:22px 1fr;grid-template-rows:22px auto;gap:2px}
-.colhd,.rowhd{display:flex;font-family:'Kanit';font-size:13px;color:#7a8295}
-.colhd{grid-column:2}
-.colhd div{flex:1;text-align:center}
-.rowhd{flex-direction:column;grid-row:2}
-.rowhd div{flex:1;display:flex;align-items:center;justify-content:center}
-.board{position:relative;aspect-ratio:1/1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:3px;background:#d9cfb9;border-radius:14px;padding:3px}
-.tile{background:#F3EBDC;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
-.tile .ic{font-size:clamp(20px,7vw,30px);line-height:1}
-.tile .nm{font-size:clamp(9px,2.5vw,11px);line-height:1.15;margin-top:2px;padding:0 2px;font-weight:600}
-.tile.road{background:#EDE3CF}
-.tile.block{background:repeating-linear-gradient(45deg,#f6d2c4 0 8px,#fbe6dd 8px 16px)}
-.tile.start{box-shadow:inset 0 0 0 3px #8CCB9B}
-.tile.goal{box-shadow:inset 0 0 0 4px #E8B400;animation:goal 1.4s ease-in-out infinite alternate}
-@keyframes goal{from{background:#FFF6C9}to{background:#FFE680}}
-.tile .tag{position:absolute;top:2px;left:3px;font-size:9px;font-family:'Kanit';color:#2E7D32}
-.robot{position:absolute;top:3px;left:3px;width:calc((100% - 6px - 12px)/5);height:calc((100% - 6px - 12px)/5);transition:transform .42s ease-in-out;pointer-events:none;z-index:3}
-.robot .spin{width:100%;height:100%;transition:transform .42s ease-in-out;display:flex;align-items:center;justify-content:center}
-.robot svg{width:72%;height:72%;filter:drop-shadow(0 3px 2px rgba(30,42,68,.35))}
-.robot.hop .spin svg{animation:hop .5s ease-in-out 3}
-@keyframes hop{50%{transform:translateY(-18%) scale(1.06)}}
-.robot.shake .spin svg{animation:shake .45s ease-in-out}
-@keyframes shake{20%{transform:translateX(-10%)}40%{transform:translateX(10%)}60%{transform:translateX(-8%)}80%{transform:translateX(6%)}}
-.section{font-family:'Kanit';font-size:15px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline}
-.section small{font-family:'Sarabun';color:#7a8295;font-size:13px}
-.prog{min-height:64px;background:#fff;border:2px dashed #cfc5b0;border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.prog .empty{color:#9aa1b1;font-size:14px;padding:0 4px}
-.ck{font-family:'Kanit';min-width:46px;height:46px;border-radius:12px;border:3px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0 6px;font-size:13px;color:var(--ink);position:relative;user-select:none}
-.ck svg{width:28px;height:28px}
-.ck.f{background:var(--f)} .ck.r{background:var(--r)} .ck.l{background:var(--l)}
-.ck .n,.rep>.n{position:absolute;top:-7px;left:-5px;background:var(--ink);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.ck.now{border-color:var(--ink);transform:translateY(-4px);box-shadow:0 4px 0 rgba(30,42,68,.25)}
-.ck.bad{border-color:var(--bad);animation:badblink .5s ease-in-out 2}
-@keyframes badblink{50%{transform:scale(1.12)}}
-.rep{position:relative;display:inline-flex;align-items:center;gap:5px;border:3px dashed var(--rep);border-radius:14px;padding:3px 5px;background:#FFF3E6}
-.rep .rl{font-family:'Kanit';background:var(--rep);border-radius:10px;padding:0 8px;height:40px;display:flex;align-items:center;font-size:14px;cursor:pointer;white-space:nowrap}
-.rep .hole{min-width:46px;height:46px;border-radius:12px;border:2px dashed #e0a56b;display:flex;align-items:center;justify-content:center;font-size:11px;color:#b5651d;text-align:center;line-height:1.1}
+body{min-height:100vh;background:
+  radial-gradient(1200px 600px at 80% -10%,#FCE7CF 0,transparent 60%),
+  radial-gradient(900px 500px at -10% 20%,#E3F0E6 0,transparent 55%),var(--paper)}
+button{font-family:'Kanit',sans-serif;color:var(--ink);cursor:pointer}
+.app{max-width:1240px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 28px}
+
+/* header */
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo .mark{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#F2A65A,#A84F12);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(168,79,18,.3)}
+.logo h1{font-family:'Kanit';font-weight:600;font-size:21px;margin:0;line-height:1.1}
+.logo small{display:block;font-family:'Sarabun';font-weight:400;font-size:13px;color:var(--ink2)}
+.tools{display:flex;gap:8px}
+.icbtn{height:42px;min-width:42px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:15px;box-shadow:var(--shadow);display:flex;align-items:center;gap:6px}
+.icbtn.ar{background:var(--ink);color:#fff;border-color:var(--ink)}
+.icbtn:focus-visible,.mcard:focus-visible,.blk:focus-visible,.tbtn:focus-visible{outline:3px solid #E8B400;outline-offset:2px}
+
+/* missions */
+.missions{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none}
+.missions::-webkit-scrollbar{display:none}
+.mcard{flex:0 0 auto;min-width:150px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px 14px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.mcard:hover{transform:translateY(-2px)}
+.mcard .k{font-family:'Kanit';font-size:12px;color:var(--ink2);letter-spacing:.02em}
+.mcard .t{font-family:'Kanit';font-weight:500;font-size:16px;display:block;margin:1px 0 2px}
+.mcard .s{font-size:14px;letter-spacing:1px;color:#d8cfbd}
+.mcard .s b{color:#E8A400;font-weight:400}
+.mcard.on{border:2px solid var(--accent);background:linear-gradient(180deg,#fff,#FFF6EC)}
+
+/* layout */
+.main{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:960px){.main{grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);align-items:start}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+
+/* scene */
+.scene{position:relative;overflow:hidden;padding:0;background:linear-gradient(180deg,#CFE8F6 0%,#E8F3F6 55%,#F6EFE0 100%)}
+.brief{position:relative;margin:12px 12px 0;z-index:2;background:rgba(255,255,255,.9);border-radius:14px;padding:9px 13px;box-shadow:0 4px 14px rgba(30,42,68,.1);font-size:15px;line-height:1.45}
+.brief b{font-family:'Kanit';font-weight:600;font-size:16px}
+#world{display:block;width:100%;height:auto}
+.cloud{animation:drift 60s linear infinite}
+.cloud.c2{animation-duration:85s;animation-delay:-30s}
+@keyframes drift{from{transform:translateX(-160px)}to{transform:translateX(820px)}}
+.isle{animation:bob 7s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.goalpin{animation:pin 1.6s ease-in-out infinite}
+@keyframes pin{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.goalring{animation:ring 1.4s ease-in-out infinite alternate}
+@keyframes ring{from{stroke-opacity:.35}to{stroke-opacity:1}}
+.goaltop{animation:glow 1.8s ease-in-out infinite alternate}
+@keyframes glow{from{fill:#FFE68A}to{fill:#FFD23F}}
+.hud{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;gap:6px}
+.chip{background:rgba(255,255,255,.9);border-radius:999px;padding:5px 11px;font-family:'Kanit';font-size:13px;box-shadow:0 2px 8px rgba(30,42,68,.12)}
+@media (prefers-reduced-motion: reduce){.cloud,.isle,.goalpin,.goaltop,.goalring{animation:none}}
+
+/* program side */
+.side{padding:16px}
+.h{font-family:'Kanit';font-weight:500;font-size:16px;display:flex;justify-content:space-between;align-items:baseline;margin:2px 2px 8px}
+.h small{font-family:'Sarabun';font-weight:400;color:var(--ink2);font-size:13px}
+.prog{min-height:92px;border-radius:16px;padding:12px 10px;background:repeating-linear-gradient(90deg,#FBF7EF 0 22px,#F7F1E4 22px 23px);border:2px dashed #D8CDB6;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.prog .empty{color:#9aa1b1;font-size:15px;padding:0 6px}
+.blk{position:relative;width:58px;height:58px;border-radius:15px;border:none;display:inline-flex;align-items:center;justify-content:center;box-shadow:inset 0 -5px 0 rgba(30,42,68,.16),0 3px 8px rgba(30,42,68,.12);transition:transform .15s,box-shadow .15s}
+.blk svg{width:30px;height:30px}
+.blk.f{background:linear-gradient(180deg,#9FD7AE,#7FBF8F)}
+.blk.r{background:linear-gradient(180deg,#A6D1F0,#7DB5DF)}
+.blk.l{background:linear-gradient(180deg,#F8DE7C,#EDC746)}
+.blk .n{position:absolute;top:-8px;left:-6px;background:var(--ink);color:#fff;border-radius:999px;font-family:'Kanit';font-size:11px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.blk.now{transform:translateY(-6px) scale(1.06);box-shadow:inset 0 -5px 0 rgba(30,42,68,.16),0 0 0 3px var(--ink),0 10px 18px rgba(30,42,68,.25)}
+.blk.bad{box-shadow:inset 0 -5px 0 rgba(30,42,68,.16),0 0 0 3px var(--bad);animation:bad .5s ease-in-out 2}
+.blk.done{opacity:.55}
+@keyframes bad{50%{transform:scale(1.12)}}
+.rep{position:relative;display:inline-flex;align-items:center;gap:6px;border:2px solid #E7A060;border-radius:17px;padding:4px 5px 4px 4px;background:linear-gradient(180deg,#FFF1E2,#FFE6CC)}
+.rep .rl{font-family:'Kanit';font-size:14px;background:linear-gradient(180deg,#F6B575,#EE9A4B);border:none;border-radius:12px;height:50px;padding:0 10px;white-space:nowrap;box-shadow:inset 0 -4px 0 rgba(30,42,68,.14)}
+.rep .hole{width:58px;height:58px;border-radius:15px;border:2px dashed #E0A56B;display:flex;align-items:center;justify-content:center;font-size:12px;color:#b5651d;text-align:center;line-height:1.1}
+.rep>.n{position:absolute;top:-8px;left:-6px;background:var(--ink);color:#fff;border-radius:999px;font-family:'Kanit';font-size:11px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 4px}
 .rep.now{box-shadow:0 0 0 3px var(--ink)}
-.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.pbtn{font-family:'Kanit';border:none;border-radius:14px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:14px;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 rgba(30,42,68,.22)}
-.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(30,42,68,.22)}
-.pbtn svg{width:32px;height:32px}
-.pbtn.f{background:var(--f)} .pbtn.r{background:var(--r)} .pbtn.l{background:var(--l)} .pbtn.rp{background:var(--rep)}
-.pbtn .big{font-size:22px;line-height:32px;height:32px}
-.ctrl{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:10px}
-.cbtn{font-family:'Kanit';font-size:17px;border-radius:14px;border:2px solid var(--ink);background:#fff;color:var(--ink);padding:11px 6px;cursor:pointer}
-.cbtn.run{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-.cbtn:disabled,.pbtn:disabled{opacity:.45;cursor:default}
-.msg{margin-top:12px;border-radius:14px;padding:10px 12px;font-size:16px;line-height:1.45;background:#fff;border:2px solid var(--line);min-height:48px}
-.msg.ok{background:#E8F5E9;border-color:#9fd3a6}
-.msg.err{background:#FDECEA;border-color:#f2b1aa}
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tbtn{border:none;border-radius:16px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:14px;box-shadow:inset 0 -5px 0 rgba(30,42,68,.16),0 3px 8px rgba(30,42,68,.12);transition:transform .1s}
+.tbtn:active{transform:translateY(2px)}
+.tbtn svg{width:32px;height:32px}
+.tbtn.f{background:linear-gradient(180deg,#9FD7AE,#7FBF8F)}.tbtn.r{background:linear-gradient(180deg,#A6D1F0,#7DB5DF)}.tbtn.l{background:linear-gradient(180deg,#F8DE7C,#EDC746)}.tbtn.rp{background:linear-gradient(180deg,#F6B575,#EE9A4B)}
+.ctrl{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin-top:12px}
+.run{border:none;border-radius:16px;background:linear-gradient(180deg,#C8661E,#A84F12);color:#fff;font-size:19px;font-weight:600;padding:14px;box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 6px 14px rgba(168,79,18,.3)}
+.sec{border-radius:16px;border:1px solid var(--line);background:#fff;font-size:16px;padding:0 16px;box-shadow:var(--shadow)}
+button:disabled{opacity:.45;cursor:default}
+.msg{margin-top:14px;border-radius:16px;padding:12px 14px;font-size:16px;line-height:1.5;background:#F7F3EA;min-height:52px;transition:background .2s}
+.msg.ok{background:#E8F5E9}.msg.err{background:#FDECEA}
 .msg b{font-family:'Kanit';font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:#5b6478;margin-top:8px}
-.foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:12px;color:#8a90a0}
-.linkbtn{background:none;border:none;color:#8a90a0;text-decoration:underline;font-size:12px;cursor:pointer;font-family:inherit;padding:4px}
-.stars{font-size:22px;letter-spacing:2px}
+.stars{font-size:24px;letter-spacing:3px}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;color:#8a90a0}
+.link{background:none;border:none;color:#8a90a0;text-decoration:underline;font-size:13px;padding:4px;font-family:inherit}
+.speed{display:flex;gap:4px}
+.speed button{border:1px solid var(--line);background:#fff;border-radius:10px;font-size:13px;padding:4px 9px}
+.speed button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🤖 หุ่นยนต์ส่งของเมืองโคราช</h1>
-  <p class="sub">เรียงการ์ดคำสั่ง แล้วกด ▶ ให้หุ่นยนต์ทำงาน · วิทยาการคำนวณ ม.1</p>
-
-  <div class="tabs" id="tabs" role="tablist"></div>
-  <div class="mission" id="mission"></div>
-
-  <div class="boardwrap">
-    <div class="colhd"><div>A</div><div>B</div><div>C</div><div>D</div><div>E</div></div>
-    <div class="rowhd"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div>
-    <div class="board" id="board">
-      <div class="robot" id="robot"><div class="spin" id="spin">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M32 2 L40 12 H24 Z" fill="#A84F12"/>
-          <rect x="12" y="14" width="40" height="40" rx="10" fill="#4C7BD9" stroke="#1E2A44" stroke-width="3"/>
-          <rect x="18" y="20" width="28" height="16" rx="6" fill="#EAF2FF" stroke="#1E2A44" stroke-width="2"/>
-          <circle cx="26" cy="28" r="3.2" fill="#1E2A44"/><circle cx="38" cy="28" r="3.2" fill="#1E2A44"/>
-          <rect x="22" y="40" width="20" height="10" rx="2" fill="#D9A066" stroke="#1E2A44" stroke-width="2"/>
-          <path d="M32 40 V50" stroke="#1E2A44" stroke-width="2"/>
-          <rect x="6" y="24" width="6" height="18" rx="3" fill="#1E2A44"/><rect x="52" y="24" width="6" height="18" rx="3" fill="#1E2A44"/>
-        </svg>
-      </div></div>
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="mark"><svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="20" width="36" height="30" rx="8" fill="#fff"/><rect x="20" y="27" width="24" height="12" rx="5" fill="#1E2A44"/><circle cx="27" cy="33" r="2.6" fill="#8CCB9B"/><circle cx="37" cy="33" r="2.6" fill="#8CCB9B"/><path d="M32 20 V10" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="9" r="4.5" fill="#F4D35E"/></svg></div>
+      <h1>หุ่นยนต์ส่งของเมืองโคราช<small>เรียงบล็อกคำสั่ง · วิทยาการคำนวณ ม.1 (ว 4.2 ม.1/1)</small></h1>
     </div>
-  </div>
-  <div class="legend"><span>▲ หัวหุ่นยนต์ = ทิศที่หันอยู่</span><span>🟩 จุดเริ่ม</span><span>🟨 จุดหมาย</span></div>
+    <div class="tools">
+      <button class="icbtn" id="snd" aria-label="เปิด/ปิดเสียง">🔊</button>
+      <a class="icbtn ar" href="/ar/" style="text-decoration:none">📷 โหมด AR</a>
+    </div>
+  </header>
 
-  <div class="section">โปรแกรมของฉัน <small id="count">0 ใบ</small></div>
-  <div class="prog" id="prog"></div>
+  <nav class="missions" id="missions" aria-label="เลือกภารกิจ"></nav>
 
-  <div class="section">การ์ดคำสั่ง <small>แตะการ์ดในโปรแกรมเพื่อเปลี่ยนชนิด</small></div>
-  <div class="palette">
-    <button class="pbtn f" data-add="f"><svg viewBox="0 0 24 24"><path d="M12 20 V5 M6 11 L12 5 L18 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>เดินหน้า</button>
-    <button class="pbtn r" data-add="r"><svg viewBox="0 0 24 24"><path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันขวา</button>
-    <button class="pbtn l" data-add="l"><svg viewBox="0 0 24 24"><path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันซ้าย</button>
-    <button class="pbtn rp" data-add="rep"><span class="big">🔁</span>ทำซ้ำ</button>
-  </div>
-  <div class="ctrl">
-    <button class="cbtn run" id="run">▶ ให้หุ่นยนต์ทำงาน</button>
-    <button class="cbtn" id="undo">⌫ ลบ</button>
-    <button class="cbtn" id="clear">ล้าง</button>
-  </div>
+  <div class="main">
+    <section class="panel scene" aria-label="แผนที่เมืองโคราช">
+      <div class="brief" id="brief"></div>
+      <svg id="world" viewBox="0 30 640 470" role="img" aria-label="แผนที่สามมิติ 5 คูณ 5 ช่องของเมืองโคราช พร้อมหุ่นยนต์"></svg>
+      <div class="hud"><span class="chip" id="where">A5 · หันทิศเหนือ</span></div>
+    </section>
 
-  <div class="msg" id="msg"></div>
+    <section class="panel side" aria-label="เขียนโปรแกรม">
+      <div class="h">โปรแกรมของฉัน <small id="count">0 ก้อน</small></div>
+      <div class="prog" id="prog"></div>
 
-  <div class="foot">
-    <span>ว 4.2 ม.1/1 · <a href="/ar/" style="color:#A84F12;font-weight:600">📷 โหมด AR (iPad)</a></span>
-    <button class="linkbtn" id="answer">ครู: แสดงเฉลย</button>
+      <div class="h" style="margin-top:14px">บล็อกคำสั่ง <small>แตะบล็อกในโปรแกรมเพื่อเปลี่ยนชนิด</small></div>
+      <div class="palette">
+        <button class="tbtn f" data-add="f"><svg viewBox="0 0 24 24"><path d="M12 20 V5 M6 11 L12 5 L18 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>เดินหน้า</button>
+        <button class="tbtn r" data-add="r"><svg viewBox="0 0 24 24"><path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันขวา</button>
+        <button class="tbtn l" data-add="l"><svg viewBox="0 0 24 24"><path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันซ้าย</button>
+        <button class="tbtn rp" data-add="rep"><span style="font-size:24px;line-height:32px;height:32px">🔁</span>ทำซ้ำ</button>
+      </div>
+      <div class="ctrl">
+        <button class="run" id="run">▶ ให้หุ่นยนต์ทำงาน</button>
+        <button class="sec" id="undo" aria-label="ลบบล็อกสุดท้าย">⌫</button>
+        <button class="sec" id="clear">ล้าง</button>
+      </div>
+      <div class="msg" id="msg" aria-live="polite"></div>
+      <div class="foot">
+        <div class="speed" role="group" aria-label="ความเร็ว"><button data-sp="1" class="on">ปกติ</button><button data-sp="0.55">เร็ว</button></div>
+        <button class="link" id="answer">ครู: แสดงเฉลย</button>
+      </div>
+    </section>
   </div>
 </div>
+<canvas class="confetti" id="confetti"></canvas>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="noodlesmound" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#F5BE7A"/><stop offset="1" stop-color="#C97C2E"/></radialGradient><radialGradient id="plinthbead" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D9D6C8"/></radialGradient><linearGradient id="jarjar" x1="0" x2="1"><stop offset="0" stop-color="#B0683F"/><stop offset="0.45" stop-color="#8A4B2A"/><stop offset="1" stop-color="#4F2914"/></linearGradient><radialGradient id="jarhl" cx="30%" cy="35%" r="40%"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="mountainsun" cx="40%" cy="40%" r="60%"><stop offset="0" stop-color="#FFF1A8"/><stop offset="1" stop-color="#F2B630"/></radialGradient><symbol id="ic-noodles" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#E7D9BE"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#B4A994"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#EBDFC9"/><ellipse cx="100" cy="118.0" rx="62" ry="28" fill="#B9C3D1"/><ellipse cx="100" cy="113.0" rx="62" ry="28" fill="#F4F7FB"/><ellipse cx="100" cy="111.0" rx="48" ry="20" fill="#E3E9F1"/><path d="M56 112.0 q44 -58 88 0 q-44 18 -88 0 Z" fill="url(#noodlesmound)"/><path d="M66 92.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><path d="M70 100.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><path d="M74 108.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><rect x="80" y="88.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 80 88.0)"/><rect x="106" y="82.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 106 82.0)"/><rect x="122" y="98.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 122 98.0)"/><rect x="92" y="104.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 92 104.0)"/><circle cx="88" cy="94.0" r="3.6" fill="#D9534F"/><circle cx="116" cy="88.0" r="3.6" fill="#D9534F"/><circle cx="130" cy="106.0" r="3.6" fill="#D9534F"/><path d="M84 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/><path d="M100 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/><path d="M116 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/></symbol><symbol id="ic-gate" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#CFE3B4"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#A1B18C"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#D7E8C1"/><polygon points="48.0,100.0 74.0,113.0 74.0,79.0 48.0,66.0" fill="#C9875A"/><polygon points="90.0,105.0 74.0,113.0 74.0,79.0 90.0,71.0" fill="#9C6946"/><polygon points="64.0,58.0 90.0,71.0 74.0,79.0 48.0,66.0" fill="#D29C77"/><polygon points="50.0,67.0 58.0,71.0 58.0,63.0 50.0,59.0" fill="#C9875A"/><polygon points="74.0,63.0 58.0,71.0 58.0,63.0 74.0,55.0" fill="#9C6946"/><polygon points="66.0,51.0 74.0,55.0 58.0,63.0 50.0,59.0" fill="#D29C77"/><polygon points="62.0,73.0 70.0,77.0 70.0,69.0 62.0,65.0" fill="#C9875A"/><polygon points="86.0,69.0 70.0,77.0 70.0,69.0 86.0,61.0" fill="#9C6946"/><polygon points="78.0,57.0 86.0,61.0 70.0,69.0 62.0,65.0" fill="#D29C77"/><polygon points="68.0,116.0 104.0,134.0 104.0,76.0 68.0,58.0" fill="#D9A06F"/><polygon points="132.0,120.0 104.0,134.0 104.0,76.0 132.0,62.0" fill="#A97C56"/><polygon points="96.0,44.0 132.0,62.0 104.0,76.0 68.0,58.0" fill="#DFB188"/><polygon points="78.0,121.0 94.0,129.0 94.0,109.0 86.0,97.0 78.0,101.0" fill="#3B2A22"/><polygon points="56.0,60.0 104.0,84.0 124.0,52.0 76.0,28.0" fill="#B5442F"/><polygon points="144.0,64.0 104.0,84.0 124.0,52.0" fill="#8F3423"/><polygon points="74.0,43.0 102.0,57.0 114.0,33.0 86.0,19.0" fill="#A33D2A"/><polygon points="126.0,45.0 102.0,57.0 114.0,33.0" fill="#7A2C1E"/><polygon points="110.0,131.0 136.0,144.0 136.0,110.0 110.0,97.0" fill="#C9875A"/><polygon points="152.0,136.0 136.0,144.0 136.0,110.0 152.0,102.0" fill="#9C6946"/><polygon points="126.0,89.0 152.0,102.0 136.0,110.0 110.0,97.0" fill="#D29C77"/><polygon points="116.0,100.0 124.0,104.0 124.0,96.0 116.0,92.0" fill="#C9875A"/><polygon points="140.0,96.0 124.0,104.0 124.0,96.0 140.0,88.0" fill="#9C6946"/><polygon points="132.0,84.0 140.0,88.0 124.0,96.0 116.0,92.0" fill="#D29C77"/><polygon points="128.0,106.0 136.0,110.0 136.0,102.0 128.0,98.0" fill="#C9875A"/><polygon points="152.0,102.0 136.0,110.0 136.0,102.0 152.0,94.0" fill="#9C6946"/><polygon points="144.0,90.0 152.0,94.0 136.0,102.0 128.0,98.0" fill="#D29C77"/><line x1="100.0" y1="26.0" x2="100.0" y2="12.0" stroke="#E2B34A" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="ic-plinth" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#CFE3B4"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#A1B18C"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#D7E8C1"/><polygon points="40.0,118.0 100.0,148.0 100.0,138.0 40.0,108.0" fill="#BEBCB2"/><polygon points="160.0,118.0 100.0,148.0 100.0,138.0 160.0,108.0" fill="#94928A"/><polygon points="100.0,78.0 160.0,108.0 100.0,138.0 40.0,108.0" fill="#C9C8BF"/><polygon points="56.0,108.0 100.0,130.0 100.0,120.0 56.0,98.0" fill="#C9C6BC"/><polygon points="144.0,108.0 100.0,130.0 100.0,120.0 144.0,98.0" fill="#9C9A92"/><polygon points="100.0,76.0 144.0,98.0 100.0,120.0 56.0,98.0" fill="#D2D0C8"/><polygon points="72.0,98.0 100.0,112.0 100.0,58.0 72.0,44.0" fill="#CBC8BF"/><polygon points="128.0,98.0 100.0,112.0 100.0,58.0 128.0,44.0" fill="#9E9C94"/><polygon points="100.0,30.0 128.0,44.0 100.0,58.0 72.0,44.0" fill="#D4D1CA"/><polygon points="64.0,44.0 100.0,62.0 100.0,56.0 64.0,38.0" fill="#C9C6BC"/><polygon points="136.0,44.0 100.0,62.0 100.0,56.0 136.0,38.0" fill="#9C9A92"/><polygon points="100.0,20.0 136.0,38.0 100.0,56.0 64.0,38.0" fill="#D2D0C8"/><circle cx="73.0" cy="55.5" r="4.6" fill="url(#plinthbead)"/><circle cx="75.0" cy="62.2" r="4.6" fill="url(#plinthbead)"/><circle cx="77.0" cy="68.5" r="4.6" fill="url(#plinthbead)"/><circle cx="79.0" cy="74.1" r="4.6" fill="url(#plinthbead)"/><circle cx="81.0" cy="78.6" r="4.6" fill="url(#plinthbead)"/><circle cx="83.0" cy="81.8" r="4.6" fill="url(#plinthbead)"/><circle cx="85.0" cy="83.5" r="4.6" fill="url(#plinthbead)"/><circle cx="87.0" cy="83.8" r="4.6" fill="url(#plinthbead)"/><circle cx="89.0" cy="82.6" r="4.6" fill="url(#plinthbead)"/><circle cx="91.0" cy="80.1" r="4.6" fill="url(#plinthbead)"/><circle cx="93.0" cy="76.5" r="4.6" fill="url(#plinthbead)"/><circle cx="95.0" cy="72.2" r="4.6" fill="url(#plinthbead)"/><circle cx="97.0" cy="67.5" r="4.6" fill="url(#plinthbead)"/><circle cx="85.0" cy="83.5" r="6" fill="#D9534F"/><circle cx="85.0" cy="83.5" r="3" fill="#F4D35E"/><path d="M82.0 88.5 l-3 16 M88.0 88.5 l3 16" stroke="#F2A65A" stroke-width="2.5" stroke-linecap="round"/></symbol><symbol id="ic-prang" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#CFE3B4"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#A1B18C"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#D7E8C1"/><polygon points="32.0,118.0 100.0,152.0 100.0,142.0 32.0,108.0" fill="#BBA67F"/><polygon points="168.0,118.0 100.0,152.0 100.0,142.0 168.0,108.0" fill="#918163"/><polygon points="100.0,74.0 168.0,108.0 100.0,142.0 32.0,108.0" fill="#C7B696"/><polygon points="48.0,108.0 100.0,134.0 100.0,122.0 48.0,96.0" fill="#C7B38C"/><polygon points="152.0,108.0 100.0,134.0 100.0,122.0 152.0,96.0" fill="#9B8B6D"/><polygon points="100.0,70.0 152.0,96.0 100.0,122.0 48.0,96.0" fill="#D1C0A0"/><polygon points="64.0,96.0 100.0,114.0 100.0,84.0 64.0,66.0" fill="#CDB993"/><polygon points="136.0,96.0 100.0,114.0 100.0,84.0 136.0,66.0" fill="#9F9072"/><polygon points="100.0,48.0 136.0,66.0 100.0,84.0 64.0,66.0" fill="#D6C5A6"/><polygon points="76.0,102.0 88.0,108.0 88.0,92.0 82.0,83.0 76.0,86.0" fill="#4A3E33"/><polygon points="68.0,66.0 100.0,82.0 100.0,71.0 68.0,55.0" fill="#CDB993"/><polygon points="132.0,66.0 100.0,82.0 100.0,71.0 132.0,55.0" fill="#9F9072"/><polygon points="100.0,39.0 132.0,55.0 100.0,71.0 68.0,55.0" fill="#D6C5A6"/><polygon points="73.0,55.0 100.0,68.5 100.0,57.5 73.0,44.0" fill="#C6B38E"/><polygon points="127.0,55.0 100.0,68.5 100.0,57.5 127.0,44.0" fill="#9A8B6E"/><polygon points="100.0,30.5 127.0,44.0 100.0,57.5 73.0,44.0" fill="#D0C0A2"/><polygon points="78.0,44.0 100.0,55.0 100.0,44.0 78.0,33.0" fill="#C0AD8A"/><polygon points="122.0,44.0 100.0,55.0 100.0,44.0 122.0,33.0" fill="#95866B"/><polygon points="100.0,22.0 122.0,33.0 100.0,44.0 78.0,33.0" fill="#CBBB9F"/><polygon points="83.0,33.0 100.0,41.5 100.0,30.5 83.0,22.0" fill="#BAA885"/><polygon points="117.0,33.0 100.0,41.5 100.0,30.5 117.0,22.0" fill="#918367"/><polygon points="100.0,13.5 117.0,22.0 100.0,30.5 83.0,22.0" fill="#C6B79A"/><polygon points="88.0,22.0 100.0,28.0 100.0,17.0 88.0,11.0" fill="#B4A281"/><polygon points="112.0,22.0 100.0,28.0 100.0,17.0 112.0,11.0" fill="#8C7E64"/><polygon points="100.0,5.0 112.0,11.0 100.0,17.0 88.0,11.0" fill="#C1B297"/><polygon points="92.0,11.0 100.0,15.0 100.0,-3.0" fill="#B19F7C"/><polygon points="108.0,11.0 100.0,15.0 100.0,-3.0" fill="#84775D"/></symbol><symbol id="ic-jar" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#E7D9BE"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#B4A994"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#EBDFC9"/><ellipse cx="100" cy="120.0" rx="40" ry="14" fill="#1E2A44" opacity="0.18"/><path d="M82 26.0 h36 v8 q34 18 30 52 q-4 34 -48 34 q-44 0 -48 -34 q-4 -34 30 -52 Z" fill="url(#jarjar)"/><path d="M82 26.0 h36 v8 q34 18 30 52 q-4 34 -48 34 q-44 0 -48 -34 q-4 -34 30 -52 Z" fill="url(#jarhl)"/><ellipse cx="100" cy="26.0" rx="20" ry="6" fill="#6E3A20"/><ellipse cx="100" cy="26.0" rx="13" ry="3.5" fill="#2E1609"/><path d="M60 56.0 q40 12 80 0" fill="none" stroke="#C78456" stroke-width="2.5" opacity="0.8"/><path d="M60 72.0 q40 12 80 0" fill="none" stroke="#C78456" stroke-width="2.5" opacity="0.8"/><path d="M62 88.0 l9 -8 l9 8 l9 -8 l9 8 l9 -8 l9 8 l9 -8 l9 8" fill="none" stroke="#D59A6A" stroke-width="2.5"/></symbol><symbol id="ic-silk" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#E7D9BE"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#B4A994"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#EBDFC9"/><polygon points="44.0,112.0 112.0,146.0 112.0,132.0 44.0,98.0" fill="#7A3E9D"/><polygon points="156.0,124.0 112.0,146.0 112.0,132.0 156.0,110.0" fill="#5F307A"/><polygon points="88.0,76.0 156.0,110.0 112.0,132.0 44.0,98.0" fill="#9160AE"/><polygon points="50.0,108.0 54.0,106.0 58.0,112.0 54.0,114.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="62.0,114.0 66.0,112.0 70.0,118.0 66.0,120.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="74.0,120.0 78.0,118.0 82.0,124.0 78.0,126.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="86.0,126.0 90.0,124.0 94.0,130.0 90.0,132.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="98.0,132.0 102.0,130.0 106.0,136.0 102.0,138.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="44.0,97.0 112.0,131.0 112.0,117.0 44.0,83.0" fill="#C0395A"/><polygon points="156.0,109.0 112.0,131.0 112.0,117.0 156.0,95.0" fill="#952C46"/><polygon points="88.0,61.0 156.0,95.0 112.0,117.0 44.0,83.0" fill="#CB5C77"/><polygon points="50.0,93.0 54.0,91.0 58.0,97.0 54.0,99.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="62.0,99.0 66.0,97.0 70.0,103.0 66.0,105.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="74.0,105.0 78.0,103.0 82.0,109.0 78.0,111.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="86.0,111.0 90.0,109.0 94.0,115.0 90.0,117.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="98.0,117.0 102.0,115.0 106.0,121.0 102.0,123.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="44.0,82.0 112.0,116.0 112.0,102.0 44.0,68.0" fill="#2F6F8F"/><polygon points="156.0,94.0 112.0,116.0 112.0,102.0 156.0,80.0" fill="#24566F"/><polygon points="88.0,46.0 156.0,80.0 112.0,102.0 44.0,68.0" fill="#5488A3"/><polygon points="50.0,78.0 54.0,76.0 58.0,82.0 54.0,84.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="62.0,84.0 66.0,82.0 70.0,88.0 66.0,90.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="74.0,90.0 78.0,88.0 82.0,94.0 78.0,96.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="86.0,96.0 90.0,94.0 94.0,100.0 90.0,102.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="98.0,102.0 102.0,100.0 106.0,106.0 102.0,108.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/></symbol><symbol id="ic-mountain" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#BFDCA5"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#94AB80"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#CAE2B5"/><circle cx="156" cy="30" r="15" fill="url(#mountainsun)"/><polygon points="36.0,106.0 96.0,136.0 96.0,22.0" fill="#4E8B5F"/><polygon points="156.0,106.0 96.0,136.0 96.0,22.0" fill="#3A6847"/><polygon points="56.0,134.0 104.0,158.0 104.0,78.0" fill="#5E9E6E"/><polygon points="152.0,134.0 104.0,158.0 104.0,78.0" fill="#467652"/><rect x="38.0" y="108.0" width="4" height="10" fill="#6E4A2F"/><polygon points="26.0,108.0 40.0,115.0 40.0,84.0" fill="#2F6E45"/><polygon points="54.0,108.0 40.0,115.0 40.0,84.0" fill="#235233"/><rect x="154.0" y="114.0" width="4" height="10" fill="#6E4A2F"/><polygon points="142.0,114.0 156.0,121.0 156.0,90.0" fill="#2F6E45"/><polygon points="170.0,114.0 156.0,121.0 156.0,90.0" fill="#235233"/><rect x="70.0" y="130.0" width="4" height="10" fill="#6E4A2F"/><polygon points="58.0,130.0 72.0,137.0 72.0,106.0" fill="#2F6E45"/><polygon points="86.0,130.0 72.0,137.0 72.0,106.0" fill="#235233"/></symbol><symbol id="ic-barrier" viewBox="0 0 200 190"><polygon points="8.0,130.0 100.0,176.0 100.0,164.0 8.0,118.0" fill="#F2C9C2"/><polygon points="192.0,130.0 100.0,176.0 100.0,164.0 192.0,118.0" fill="#BC9C97"/><polygon points="100.0,72.0 192.0,118.0 100.0,164.0 8.0,118.0" fill="#F4D2CC"/><polygon points="66.0,105.0 72.0,108.0 72.0,82.0 66.0,79.0" fill="#8A8F99"/><polygon points="80.0,104.0 72.0,108.0 72.0,82.0 80.0,78.0" fill="#6B6F77"/><polygon points="74.0,75.0 80.0,78.0 72.0,82.0 66.0,79.0" fill="#9FA3AB"/><polygon points="120.0,132.0 126.0,135.0 126.0,109.0 120.0,106.0" fill="#8A8F99"/><polygon points="134.0,131.0 126.0,135.0 126.0,109.0 134.0,105.0" fill="#6B6F77"/><polygon points="128.0,102.0 134.0,105.0 126.0,109.0 120.0,106.0" fill="#9FA3AB"/><polygon points="67.0,86.5 79.0,92.5 79.0,80.5 67.0,74.5" fill="#D9534F"/><polygon points="85.0,89.5 79.0,92.5 79.0,80.5 85.0,77.5" fill="#A9403D"/><polygon points="73.0,71.5 85.0,77.5 79.0,80.5 67.0,74.5" fill="#DF716E"/><polygon points="79.0,92.5 91.0,98.5 91.0,86.5 79.0,80.5" fill="#F4F1EA"/><polygon points="97.0,95.5 91.0,98.5 91.0,86.5 97.0,83.5" fill="#BEBBB6"/><polygon points="85.0,77.5 97.0,83.5 91.0,86.5 79.0,80.5" fill="#F5F3ED"/><polygon points="91.0,98.5 103.0,104.5 103.0,92.5 91.0,86.5" fill="#D9534F"/><polygon points="109.0,101.5 103.0,104.5 103.0,92.5 109.0,89.5" fill="#A9403D"/><polygon points="97.0,83.5 109.0,89.5 103.0,92.5 91.0,86.5" fill="#DF716E"/><polygon points="103.0,104.5 115.0,110.5 115.0,98.5 103.0,92.5" fill="#F4F1EA"/><polygon points="121.0,107.5 115.0,110.5 115.0,98.5 121.0,95.5" fill="#BEBBB6"/><polygon points="109.0,89.5 121.0,95.5 115.0,98.5 103.0,92.5" fill="#F5F3ED"/><polygon points="115.0,110.5 127.0,116.5 127.0,104.5 115.0,98.5" fill="#D9534F"/><polygon points="133.0,113.5 127.0,116.5 127.0,104.5 133.0,101.5" fill="#A9403D"/><polygon points="121.0,95.5 133.0,101.5 127.0,104.5 115.0,98.5" fill="#DF716E"/></symbol></defs></svg>
 
 <script>
 (function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
 const COLS='ABCDE';
 const PLACES={
-  '0,0':{ic:'⛰️',nm:'เขาใหญ่'},
-  '2,0':{ic:'🌼',nm:'อนุสาวรีย์ท้าวสุรนารี'},
-  '4,0':{ic:'🛕',nm:'ปราสาทหินพิมาย'},
-  '2,2':{ic:'🏯',nm:'ประตูชุมพล'},
-  '4,2':{ic:'🏺',nm:'ด่านเกวียน'},
-  '0,4':{ic:'🍜',nm:'ร้านผัดหมี่'},
-  '4,4':{ic:'🧵',nm:'ผ้าไหมปักธงชัย'}
+  '0,0':{ic:'mountain',nm:'เขาใหญ่'},
+  '2,0':{ic:'plinth',nm:'อนุสาวรีย์ท้าวสุรนารี'},
+  '4,0':{ic:'prang',nm:'ปราสาทหินพิมาย'},
+  '2,2':{ic:'gate',nm:'ประตูชุมพล'},
+  '4,2':{ic:'jar',nm:'ด่านเกวียน'},
+  '0,4':{ic:'noodles',nm:'ร้านผัดหมี่'},
+  '4,4':{ic:'silk',nm:'ผ้าไหมปักธงชัย'}
 };
 const ARROW={
   f:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/>',
@@ -158,180 +188,386 @@ const DIR=['เหนือ','ตะวันออก','ใต้','ตะว�
 const DX=[0,1,0,-1], DY=[-1,0,1,0];
 const F={t:'f'},R={t:'r'},L={t:'l'};
 const MISSIONS=[
-  {tab:'ภารกิจ 1',title:'ส่งผัดหมี่ไปประตูชุมพล',text:'หุ่นยนต์อยู่ที่ร้านผัดหมี่ (A5) หันหน้าขึ้นทิศเหนือ ช่วยพาไปส่งของที่ประตูชุมพล (C3)',goal:[2,2],block:[],answer:[F,F,R,F,F]},
-  {tab:'ภารกิจ 2',title:'ถนนปิด! อ้อมไปอนุสาวรีย์ฯ',text:'ช่อง A3 ปิดซ่อมถนน 🚧 หาเส้นทางใหม่ไปส่งพวงมาลัยที่อนุสาวรีย์ท้าวสุรนารี (C1)',goal:[2,0],block:[[0,2]],answer:[R,F,F,L,F,F,F,F]},
-  {tab:'ภารกิจ 3',title:'ส่งของไกล ใช้การ์ดให้น้อย',text:'ไปปราสาทหินพิมาย (E1) โดยใช้การ์ดไม่เกิน 6 ใบ 💡 ใช้การ์ด 🔁 ทำซ้ำ ช่วยได้',goal:[4,0],block:[],limit:6,answer:[R,{t:'rep',n:4,body:F},L,{t:'rep',n:4,body:F}]},
-  {tab:'ซ่อมคำสั่ง',title:'นักสืบหาบั๊ก (Debugging)',text:'เพื่อนเขียนโปรแกรมไปประตูชุมพล (C3) แต่หุ่นยนต์หลงทาง กด ▶ ดูก่อน แล้วแตะการ์ดใบที่ผิดเพื่อแก้',goal:[2,2],block:[],preset:[F,F,L,F,F],answer:[F,F,R,F,F]},
-  {tab:'เล่นอิสระ',title:'โหมดอิสระ',text:'ตั้งโจทย์ให้เพื่อน แล้วลองเขียนโปรแกรมไปที่ไหนก็ได้ในโคราช',goal:null,block:[],answer:null}
+  {tab:'ภารกิจ 1',title:'ส่งผัดหมี่ไปประตูชุมพล',text:'หุ่นยนต์อยู่ที่ร้านผัดหมี่ (A5) หันไปทิศเหนือ พาไปส่งของที่ประตูชุมพล (C3)',goal:[2,2],block:[],answer:[F,F,R,F,F]},
+  {tab:'ภารกิจ 2',title:'ถนนปิด! หาทางอ้อม',text:'ช่อง A3 ปิดซ่อมถนน หาเส้นทางใหม่ไปส่งพวงมาลัยที่อนุสาวรีย์ท้าวสุรนารี (C1)',goal:[2,0],block:[[0,2]],answer:[R,F,F,L,F,F,F,F]},
+  {tab:'ภารกิจ 3',title:'ส่งไกล ใช้บล็อกน้อย',text:'ไปปราสาทหินพิมาย (E1) โดยใช้บล็อกไม่เกิน 6 ก้อน 💡 ใช้ 🔁 ทำซ้ำ ช่วยได้',goal:[4,0],block:[],limit:6,answer:[R,{t:'rep',n:4,body:F},L,{t:'rep',n:4,body:F}]},
+  {tab:'ซ่อมคำสั่ง',title:'นักสืบหาบั๊ก (Debugging)',text:'โปรแกรมนี้ควรไปประตูชุมพล (C3) แต่หุ่นยนต์หลงทาง กด ▶ ดูก่อน แล้วแตะบล็อกที่ผิดเพื่อแก้',goal:[2,2],block:[],preset:[F,F,L,F,F],answer:[F,F,R,F,F]},
+  {tab:'เล่นอิสระ',title:'โหมดอิสระ',text:'ตั้งโจทย์ให้เพื่อน แล้วพาหุ่นยนต์ไปที่ไหนก็ได้ในโคราช',goal:null,block:[],answer:null}
 ];
 const START={x:0,y:4,h:0};
 
-const $=id=>document.getElementById(id);
-const board=$('board'),robot=$('robot'),spin=$('spin'),progEl=$('prog'),msg=$('msg');
-let mi=0, prog=[], running=false, pos={...START}, rot=0;
-const clone=a=>JSON.parse(JSON.stringify(a));
+/* ---------- storage (best effort) ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+let stars=store.get('kr-stars',[0,0,0,0,0]);
+let muted=store.get('kr-muted',false);
 
-function buildBoard(){
-  board.querySelectorAll('.tile').forEach(t=>t.remove());
+/* ---------- sound (Web Audio, created on first gesture) ---------- */
+let ac=null;
+function tone(freq,dur,type,vol,when){
+  if(muted)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+(when||0);const o=ac.createOscillator(),g=ac.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.08,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur+0.05);
+  }catch(e){}
+}
+const sfx={
+  add(){tone(660,.09,'triangle',.06);},
+  step(){tone(420,.08,'square',.025);tone(520,.06,'square',.02,.07);},
+  turn(){tone(300,.14,'sine',.05);tone(450,.12,'sine',.04,.06);},
+  bump(){tone(140,.25,'sawtooth',.06);tone(110,.25,'sawtooth',.05,.08);},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.07,i*.11));},
+  miss(){tone(330,.18,'triangle',.05);tone(262,.25,'triangle',.05,.15);}
+};
+$('snd').textContent=muted?'🔇':'🔊';
+$('snd').onclick=()=>{muted=!muted;store.set('kr-muted',muted);$('snd').textContent=muted?'🔇':'🔊';if(!muted)sfx.add();};
+
+/* ---------- isometric world (SVG) ---------- */
+const TW=112, TH=56, SLAB=14, OX=320, OY=170;
+const world=$('world');
+const cx=(c,r)=>OX+(c-r)*TW/2, cy=(c,r)=>OY+(c+r)*TH/2;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const pts=a=>a.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;
+  if(f>=1){r+=(255-r)*(f-1);g+=(255-g)*(f-1);b+=(255-b)*(f-1);}else{r*=f;g*=f;b*=f;}
+  return '#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');}
+// iso box centred on (x,y) ground point; s = footprint scale (1 = one tile); h = height; z = lift
+function isoBox(g,x,y,s,h,z,color,cls){
+  const hw=TW/2*s,hh=TH/2*s; y-=z;
+  const T=[x,y-hh-h],Rr=[x+hw,y-h],B=[x,y+hh-h],Lf=[x-hw,y-h],Rb=[x+hw,y],Bb=[x,y+hh],Lb=[x-hw,y];
+  el('polygon',{points:pts([Lf,B,Bb,Lb]),fill:shade(color,.86)},g);
+  el('polygon',{points:pts([B,Rr,Rb,Bb]),fill:shade(color,.7)},g);
+  const top=el('polygon',{points:pts([T,Rr,B,Lf]),fill:shade(color,1.12)},g);
+  if(cls)top.setAttribute('class',cls);
+  return{T,R:Rr,B,L:Lf,Rb,Bb,Lb};
+}
+
+let layerTiles,layerGoal,layerMarks,layerObj,layerTags;
+function drawStatic(){
+  world.innerHTML='';
   const m=MISSIONS[mi];
-  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
-    const t=document.createElement('div');
-    t.className='tile';
-    const p=PLACES[x+','+y];
-    const blocked=m.block.some(b=>b[0]===x&&b[1]===y);
-    if(blocked){t.classList.add('block');t.innerHTML='<div class="ic">🚧</div><div class="nm">ถนนปิด</div>';}
-    else if(p){t.innerHTML='<div class="ic">'+p.ic+'</div><div class="nm">'+p.nm+'</div>';}
-    else t.classList.add('road');
-    if(x===START.x&&y===START.y){t.classList.add('start');t.insertAdjacentHTML('beforeend','<span class="tag">เริ่ม</span>');}
-    if(m.goal&&m.goal[0]===x&&m.goal[1]===y)t.classList.add('goal');
-    t.setAttribute('aria-label',COLS[x]+(y+1)+(p?' '+p.nm:'')+(blocked?' ถนนปิด':''));
-    board.insertBefore(t,robot);
+  // sky decorations
+  const sky=el('g',{},world);
+  [[120,70,1],[470,46,.8]].forEach(([x,y,s],i)=>{
+    const c=el('g',{class:'cloud'+(i?' c2':'')},sky);
+    const g=el('g',{transform:'translate('+x+','+y+') scale('+s+')',opacity:.92},c);
+    el('ellipse',{cx:0,cy:0,rx:46,ry:16,fill:'#fff'},g);el('ellipse',{cx:-22,cy:-8,rx:24,ry:16,fill:'#fff'},g);el('ellipse',{cx:18,cy:-12,rx:28,ry:20,fill:'#fff'},g);
+  });
+  const isle=el('g',{class:'isle'},world);
+  // floating island under the board
+  const N=[cx(0,0),cy(0,0)-TH/2],E=[cx(4,0)+TW/2,cy(4,0)],S=[cx(4,4),cy(4,4)+TH/2],W=[cx(0,4)-TW/2,cy(0,4)];
+  const pad=26, n=[N[0],N[1]-pad/2],e=[E[0]+pad,E[1]],s=[S[0],S[1]+pad/2],w=[W[0]-pad,W[1]];
+  
+  el('polygon',{points:pts([w,s,[s[0],s[1]+40],[w[0]+40,w[1]+26]]),fill:'#9C7A55'},isle);
+  el('polygon',{points:pts([s,e,[e[0]-40,e[1]+26],[s[0],s[1]+40]]),fill:'#7E6143'},isle);
+  el('polygon',{points:pts([[w[0]+40,w[1]+26],[s[0],s[1]+40],[s[0],s[1]+62],[w[0]+120,w[1]+44]]),fill:'#856746'},isle);
+  el('polygon',{points:pts([[s[0],s[1]+40],[e[0]-40,e[1]+26],[e[0]-120,e[1]+44],[s[0],s[1]+62]]),fill:'#6A5139'},isle);
+  el('polygon',{points:pts([w,s,[s[0],s[1]+16],[w[0],w[1]+16]]),fill:'#79B26A'},isle);
+  el('polygon',{points:pts([s,e,[e[0],e[1]+16],[s[0],s[1]+16]]),fill:'#5E9A55'},isle);
+  el('polygon',{points:pts([n,e,s,w]),fill:'#9ED08A'},isle);
+  // little trees on the rim
+  [[w[0]+14,w[1]-2],[n[0]-60,n[1]+40],[e[0]-16,e[1]-6]].forEach(([x,y])=>{const t=el('g',{},isle);el('rect',{x:x-2,y:y-10,width:4,height:10,fill:'#7A5A3A'},t);el('circle',{cx:x,cy:y-16,r:9,fill:'#4E9A5B'},t);el('circle',{cx:x-4,cy:y-19,r:5,fill:'#6CB879'},t);});
+  layerTiles=el('g',{},isle);layerGoal=el('g',{},isle);layerMarks=el('g',{},isle);layerObj=el('g',{},isle);layerTags=el('g',{},isle);
+  // tiles
+  for(let d=0;d<=8;d++)for(let c=0;c<5;c++){const r=d-c;if(r<0||r>4)continue;
+    const g=el('g',{},layerTiles);
+    const blocked=m.block.some(b=>b[0]===c&&b[1]===r);
+    const isStart=c===START.x&&r===START.y, isGoal=m.goal&&m.goal[0]===c&&m.goal[1]===r;
+    const col=isStart?'#F2A65A':isGoal?'#FFE07A':blocked?'#F2C9BC':((c+r)%2?'#EFE6D3':'#F6EFE0');
+    isoBox(g,cx(c,r),cy(c,r),.96,SLAB,0,col,isGoal?'goaltop':null);
+    const lbl=el('text',{x:cx(c,r),y:cy(c,r)-SLAB+5,'text-anchor':'middle','font-family':'Kanit','font-size':11,fill:'rgba(30,42,68,.35)'},g);
+    lbl.textContent=COLS[c]+(r+1);
+  }
+  // compass
+  const cpx=cx(4,0)+TW/2+18, cpy=cy(4,0)-56;
+  const cg=el('g',{transform:'translate('+cpx+','+cpy+')'},isle);
+  el('circle',{r:17,fill:'rgba(255,255,255,.9)',stroke:'#1E2A44','stroke-opacity':.15},cg);
+  el('polygon',{points:pts([[12,-6],[-3,-1],[3,3]]),fill:'#C62828'},cg);
+  el('polygon',{points:pts([[-12,6],[3,1],[-3,-3]]),fill:'#9aa1b1'},cg);
+  const nt=el('text',{x:15,y:-12,'font-family':'Kanit','font-size':12,'font-weight':600,fill:'#C62828'},cg);nt.textContent='N';
+  // goal pin
+  if(m.goal){
+    const gx=cx(m.goal[0],m.goal[1]),gy=cy(m.goal[0],m.goal[1])-SLAB;
+    const pin=el('g',{class:'goalpin'},layerTags);
+    const ring=el('polygon',{points:pts([[gx,gy-TH/2*1.02],[gx+TW/2*1.02,gy],[gx,gy+TH/2*1.02],[gx-TW/2*1.02,gy]]),fill:'none',stroke:'#FFB800','stroke-width':5,'stroke-linejoin':'round',class:'goalring'},layerGoal);
+    const p=el('g',{transform:'translate('+gx+','+(gy-66)+')'},pin);
+    el('path',{d:'M0 18 C-12 6 -14 -2 -14 -6 A14 14 0 1 1 14 -6 C14 -2 12 6 0 18Z',fill:'#C62828'},p);
+    el('circle',{cx:0,cy:-6,r:6,fill:'#fff'},p);
   }
 }
-function place(instant){
-  if(instant){robot.style.transition='none';spin.style.transition='none';}
-  robot.style.transform='translate(calc('+pos.x+' * (100% + 3px)),calc('+pos.y+' * (100% + 3px)))';
-  spin.style.transform='rotate('+rot+'deg)';
-  if(instant){robot.offsetWidth;robot.style.transition='';spin.style.transition='';}
+function drawTrail(){
+  layerMarks.innerHTML='';
+  trail.forEach(([c,r],i)=>{el('ellipse',{cx:cx(c,r),cy:cy(c,r)-SLAB,rx:12,ry:6,fill:'#5DB075',opacity:.75},layerMarks);});
 }
-function resetRobot(){pos={...START};rot=0;robot.classList.remove('hop','shake');place(true);}
+/* robot drawing: heading 0 N(up-right) 1 E(down-right) 2 S(down-left) 3 W(up-left) */
+function drawRobot(g,x,y,h,squash,hop){
+  const s=1.12;
+  const k=el('g',{transform:'translate('+x+','+(y-hop)+') scale('+squash+',1) translate('+(-x)+','+(-y)+')'},g);
+  el('ellipse',{cx:x,cy:y+2+hop,rx:30,ry:13,fill:'rgba(30,42,68,.22)'},k);
+  const BH=34*s,HH=26*s;const body=isoBox(k,x,y,.46*s,BH,0,'#E4ECF6');
+  const head=isoBox(k,x,y,.36*s,HH,BH+4,'#F2A65A');
+  // which visible face looks where the robot faces: E -> right face (B..R), S -> left face (L..B)
+  const face=(G,t,u)=>{ // point on right face param t, height frac u
+    return [G.B[0]+(G.R[0]-G.B[0])*t, (G.B[1]+(G.R[1]-G.B[1])*t)*(1-u)+(G.Bb[1]+(G.Rb[1]-G.Bb[1])*t)*u];};
+  const faceL=(G,t,u)=>[G.L[0]+(G.B[0]-G.L[0])*t,(G.L[1]+(G.B[1]-G.L[1])*t)*(1-u)+(G.Lb[1]+(G.Bb[1]-G.Lb[1])*t)*u];
+  const hb=Object.assign({},head);hb.Rb=[head.R[0],head.R[1]+HH];hb.Bb=[head.B[0],head.B[1]+HH];hb.Lb=[head.L[0],head.L[1]+HH];
+  if(h===1||h===2){
+    const f=h===1?face:faceL;
+    [.3,.7].forEach(t=>{const p=f(hb,t,.45);el('ellipse',{cx:p[0],cy:p[1],rx:3.4,ry:5,fill:'#1E2A44'},k);el('circle',{cx:p[0]+1,cy:p[1]-2,r:1.2,fill:'#fff'},k);});
+    const bb=Object.assign({},body);bb.Rb=[body.R[0],body.R[1]+BH];bb.Bb=[body.B[0],body.B[1]+BH];bb.Lb=[body.L[0],body.L[1]+BH];
+    const p=f(bb,.5,.45);el('circle',{cx:p[0],cy:p[1],r:5.5,fill:'#8CCB9B',stroke:'#fff','stroke-width':1.5},k);
+  }else{
+    // back view: delivery box on the visible back face
+    const f=h===0?faceL:face;
+    const bb=Object.assign({},body);bb.Rb=[body.R[0],body.R[1]+BH];bb.Bb=[body.B[0],body.B[1]+BH];bb.Lb=[body.L[0],body.L[1]+BH];
+    const a=f(bb,.2,.2),b=f(bb,.8,.2),c=f(bb,.8,.85),d=f(bb,.2,.85);
+    el('polygon',{points:pts([a,b,c,d]),fill:'#D9A066',stroke:'#A87542','stroke-width':1},k);
+    el('line',{x1:(a[0]+b[0])/2,y1:(a[1]+b[1])/2,x2:(c[0]+d[0])/2,y2:(c[1]+d[1])/2,stroke:'#A87542','stroke-width':1.5},k);
+  }
+  // antenna
+  const tx=x, ty=head.T[1]+ (head.B[1]-head.T[1])/2;
+  el('line',{x1:tx,y1:ty,x2:tx,y2:ty-16,stroke:'#C9D6E8','stroke-width':3,'stroke-linecap':'round'},k);
+  el('circle',{cx:tx,cy:ty-19,r:4.5,fill:'#F4D35E',stroke:'#E0B92E'},k);
+}
+function headingArrow(g,x,y,h){
+  const v=[[TW/2,-TH/2],[TW/2,TH/2],[-TW/2,TH/2],[-TW/2,-TH/2]][h];
+  const len=.36, px=v[0]*len, py=v[1]*len, nx=-v[1]*.12, ny=v[0]*.12*.5;
+  el('polygon',{points:pts([[x+px,y+py],[x+px*.45+nx,y+py*.45+ny*2],[x+px*.45-nx,y+py*.45-ny*2]]),fill:'#A84F12',opacity:.9},g);
+}
+/* dynamic layer: landmarks + robot in depth order */
+let anim={x:0,y:0,h:0,squash:1,hop:0,depth:0};
+function drawObjects(){
+  layerObj.innerHTML='';
+  const m=MISSIONS[mi];
+  const robotTile=pos.x+','+pos.y;
+  const items=[];
+  for(const key in PLACES){const [c,r]=key.split(',').map(Number);if(m.block.some(b=>b[0]===c&&b[1]===r))continue;items.push({d:c+r,c,r,ic:PLACES[key].ic});}
+  m.block.forEach(([c,r])=>items.push({d:c+r,c,r,ic:'barrier'}));
+  items.push({d:anim.depth,robot:true});
+  items.sort((a,b)=>a.d-b.d);
+  const K=(TW/2)/92;
+  for(const it of items){
+    if(it.robot){
+      const g=el('g',{},layerObj);
+      headingArrow(g,anim.x,anim.y,anim.h);
+      drawRobot(g,anim.x,anim.y,anim.h,anim.squash,anim.hop);
+      continue;
+    }
+    const x=cx(it.c,it.r),y=cy(it.c,it.r)-SLAB+2;
+    const here=Math.round(anim.depth)===it.d&&(it.c+','+it.r)===nearTile();
+    el('use',{href:'#ic-'+it.ic,x:x-100*K,y:y-118*K,width:200*K,height:190*K,opacity:here?.35:1},layerObj);
+  }
+}
+function nearTile(){return Math.round(animTile.x)+','+Math.round(animTile.y);}
+let animTile={x:0,y:4};
+function drawTags(){
+  layerTags.querySelectorAll('.tag').forEach(t=>t.remove());
+  const m=MISSIONS[mi];
+  for(const key in PLACES){
+    const [c,r]=key.split(',').map(Number);
+    if(m.block.some(b=>b[0]===c&&b[1]===r))continue;
+    const TOP={mountain:84,prang:92,plinth:76,gate:58,jar:50,silk:42,noodles:48};
+    const isGoal=m.goal&&m.goal[0]===c&&m.goal[1]===r;
+    const x=cx(c,r),y=cy(c,r)-SLAB+TH*.3;
+    const g=el('g',{class:'tag'},layerTags);
+    const t=el('text',{x:x,y:y+10,'text-anchor':'middle','font-family':'Kanit','font-size':12.5,'font-weight':500,fill:'#1E2A44'},g);
+    t.textContent=PLACES[key].nm;
+    const w=PLACES[key].nm.length*7+12;
+    const rc=el('rect',{x:x-w/2,y:y-4,width:w,height:19,rx:9.5,fill:'rgba(255,255,255,.92)',stroke:'rgba(30,42,68,.12)'},g);
+    g.insertBefore(rc,t);
+  }
+  const pinEl=layerTags.querySelector('.goalpin');if(pinEl)layerTags.appendChild(pinEl);
+  m.block.forEach(([c,r])=>{const x=cx(c,r),y=cy(c,r)-SLAB+TH*.3;const g=el('g',{class:'tag'},layerTags);el('rect',{x:x-30,y:y-3,width:60,height:18,rx:9,fill:'rgba(198,40,40,.9)'},g);const t=el('text',{x:x,y:y+10,'text-anchor':'middle','font-family':'Kanit','font-size':12,fill:'#fff'},g);t.textContent='ถนนปิด';});
+}
 
+/* ---------- state ---------- */
+let mi=0, prog=[], running=false, pos={...START}, trail=[], speed=1;
+const clone=a=>JSON.parse(JSON.stringify(a));
+const progEl=$('prog'), msg=$('msg');
+function setAnimToPos(){anim.x=cx(pos.x,pos.y);anim.y=cy(pos.x,pos.y)-SLAB;anim.h=pos.h;anim.squash=1;anim.hop=0;anim.depth=pos.x+pos.y+.5;animTile={x:pos.x,y:pos.y};}
+function resetBot(){pos={...START};trail=[];setAnimToPos();drawTrail();drawObjects();updWhere();}
+function updWhere(){$('where').textContent=COLS[pos.x]+(pos.y+1)+' · หันทิศ'+DIR[pos.h];}
+
+/* tween helper */
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function tween(ms,fn){return new Promise(res=>{const t0=performance.now();const f=now=>{const t=Math.min(1,(now-t0)/ms);fn(t);drawObjects();if(t<1)requestAnimationFrame(f);else res();};requestAnimationFrame(f);});}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- program UI ---------- */
 function chip(it,label,path){
-  const d=document.createElement('div');
-  d.className='ck '+it.t;
+  const d=document.createElement('button');
+  d.className='blk '+it.t;
   d.innerHTML='<svg viewBox="0 0 24 24"><g fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'+ARROW[it.t]+'</g></svg>'+(label?'<span class="n">'+label+'</span>':'');
-  d.setAttribute('role','button');
   d.setAttribute('aria-label',NAME[it.t]+' แตะเพื่อเปลี่ยน');
   d.dataset.path=path;
-  d.onclick=()=>{if(running)return;it.t={f:'r',r:'l',l:'f'}[it.t];edited();};
+  d.onclick=()=>{if(running)return;it.t={f:'r',r:'l',l:'f'}[it.t];sfx.add();edited();};
   return d;
 }
 function countCards(){let c=0;prog.forEach(it=>{c+=it.t==='rep'?(it.body?2:1):1;});return c;}
 function render(){
   progEl.innerHTML='';
-  if(!prog.length){progEl.innerHTML='<span class="empty">แตะการ์ดคำสั่งด้านล่างเพื่อเริ่มเขียนโปรแกรม</span>';}
+  if(!prog.length)progEl.innerHTML='<span class="empty">แตะบล็อกคำสั่งด้านล่างเพื่อเริ่มเขียนโปรแกรม</span>';
   prog.forEach((it,i)=>{
     if(it.t==='rep'){
       const g=document.createElement('div');g.className='rep';g.dataset.path=String(i);
-      const lb=document.createElement('div');lb.className='rl';lb.textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';
-      lb.setAttribute('role','button');lb.setAttribute('aria-label','ทำซ้ำ '+it.n+' ครั้ง แตะเพื่อเปลี่ยนจำนวน');
-      lb.onclick=()=>{if(running)return;it.n=it.n>=5?2:it.n+1;edited();};
+      const lb=document.createElement('button');lb.className='rl';lb.textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';
+      lb.setAttribute('aria-label','ทำซ้ำ '+it.n+' ครั้ง แตะเพื่อเปลี่ยนจำนวน');
+      lb.onclick=()=>{if(running)return;it.n=it.n>=5?2:it.n+1;sfx.add();edited();};
       g.appendChild(lb);
       if(it.body)g.appendChild(chip(it.body,'',i+'.0'));
-      else{const h=document.createElement('div');h.className='hole';h.textContent='ใส่การ์ด';g.appendChild(h);}
+      else{const h=document.createElement('div');h.className='hole';h.textContent='ใส่บล็อก';g.appendChild(h);}
       const n=document.createElement('span');n.className='n';n.textContent=String(i+1);g.appendChild(n);
       progEl.appendChild(g);
-    } else progEl.appendChild(chip(it,String(i+1),String(i)));
+    }else progEl.appendChild(chip(it,String(i+1),String(i)));
   });
-  $('count').textContent=countCards()+' ใบ'+(MISSIONS[mi].limit?' (ไม่เกิน '+MISSIONS[mi].limit+')':'');
+  const m=MISSIONS[mi];
+  $('count').textContent=countCards()+' ก้อน'+(m.limit?' (ไม่เกิน '+m.limit+')':'');
 }
-function edited(){render();resetRobot();setMsg('');}
-function setMsg(html,kind){msg.className='msg'+(kind?' '+kind:'');msg.innerHTML=html||defaultMsg();}
-function defaultMsg(){const m=MISSIONS[mi];return m.goal?'หุ่นยนต์หันหน้าไปทิศ<b>เหนือ</b> (ขึ้นด้านบน) เริ่มที่ช่อง A5':'เขียนโปรแกรมอะไรก็ได้ แล้วกด ▶';}
-
+function edited(){render();resetBot();setMsg('');}
+function setMsg(h,k){msg.className='msg'+(k?' '+k:'');msg.innerHTML=h||defaultMsg();}
+function defaultMsg(){return MISSIONS[mi].goal?'หุ่นยนต์อยู่ที่ <b>A5</b> หันไปทิศ<b>เหนือ</b> (ลูกศรสีส้มใต้หุ่นยนต์บอกทิศที่หันอยู่)':'เขียนโปรแกรมอะไรก็ได้ แล้วกด ▶';}
 function add(t){
   if(running)return;
   const last=prog[prog.length-1];
   if(t==='rep'){
-    if(last&&last.t==='rep'&&!last.body){setMsg('ใส่การ์ดลงในช่อง <b>ทำซ้ำ</b> ก่อนนะ','err');return;}
+    if(last&&last.t==='rep'&&!last.body){setMsg('ใส่บล็อกลงในช่อง <b>ทำซ้ำ</b> ก่อนนะ','err');return;}
     prog.push({t:'rep',n:2,body:null});
-  } else if(last&&last.t==='rep'&&!last.body){last.body={t};}
+  }else if(last&&last.t==='rep'&&!last.body)last.body={t};
   else prog.push({t});
-  edited();
+  sfx.add();edited();
 }
 
+/* ---------- missions ---------- */
+function renderMissions(){
+  const nav=$('missions');nav.innerHTML='';
+  MISSIONS.forEach((m,i)=>{
+    const b=document.createElement('button');b.className='mcard'+(i===mi?' on':'');
+    const st=m.goal?'<span class="s">'+'<b>★</b>'.repeat(stars[i])+'★'.repeat(3-stars[i])+'</span>':'<span class="s" style="color:#8a90a0;letter-spacing:0">สร้างโจทย์เอง</span>';
+    b.innerHTML='<span class="k">'+m.tab.toUpperCase()+'</span><span class="t">'+m.title+'</span>'+st;
+    b.onclick=()=>loadMission(i);nav.appendChild(b);
+  });
+}
 function loadMission(i){
   if(running)return;
   mi=i;const m=MISSIONS[i];
-  document.querySelectorAll('.tab').forEach((b,k)=>{b.classList.toggle('on',k===i);b.setAttribute('aria-selected',k===i);});
-  $('mission').innerHTML='<b>'+m.title+'</b><span>'+m.text+'</span>';
+  renderMissions();
+  $('brief').innerHTML='<b>'+m.title+'</b> · '+m.text;
   prog=m.preset?clone(m.preset):[];
   $('answer').style.display=m.answer?'':'none';
-  buildBoard();render();resetRobot();setMsg('');
+  drawStatic();drawTags();render();resetBot();setMsg('');
 }
 
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function mark(path,cls){
+/* ---------- run ---------- */
+function mark(path){
   progEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
   if(path==null)return;
-  const el=progEl.querySelector('[data-path="'+path+'"]');
-  if(el)el.classList.add(cls||'now');
-  const top=path.split('.')[0];
-  if(path.includes('.')){const g=progEl.querySelector('.rep[data-path="'+top+'"]');if(g)g.classList.add('now');}
+  const e=progEl.querySelector('[data-path="'+path+'"]');if(e)e.classList.add('now');
+  if(path.includes('.')){const g=progEl.querySelector('.rep[data-path="'+path.split('.')[0]+'"]');if(g)g.classList.add('now');}
 }
-function cell(x,y){return COLS[x]+(y+1);}
-function placeName(x,y){const p=PLACES[x+','+y];return cell(x,y)+(p?' ('+p.nm+')':'');}
-
+const cell=(x,y)=>COLS[x]+(y+1);
+const placeName=(x,y)=>{const p=PLACES[x+','+y];return cell(x,y)+(p?' ('+p.nm+')':'');};
 async function step(it,path,num){
   mark(path);
-  if(it.t==='r'){rot+=90;pos.h=(pos.h+1)%4;place();await sleep(520);return true;}
-  if(it.t==='l'){rot-=90;pos.h=(pos.h+3)%4;place();await sleep(520);return true;}
-  const nx=pos.x+DX[pos.h], ny=pos.y+DY[pos.h];
+  const T=480*speed;
+  if(it.t==='r'||it.t==='l'){
+    sfx.turn();
+    const nh=it.t==='r'?(pos.h+1)%4:(pos.h+3)%4;
+    await tween(T,t=>{anim.squash=Math.max(.15,Math.abs(Math.cos(t*Math.PI)));if(t>=.5)anim.h=nh;});
+    pos.h=nh;anim.squash=1;updWhere();await sleep(90*speed);return true;
+  }
+  const nx=pos.x+DX[pos.h],ny=pos.y+DY[pos.h];
   const out=nx<0||ny<0||nx>4||ny>4;
   const blk=!out&&MISSIONS[mi].block.some(b=>b[0]===nx&&b[1]===ny);
+  const x0=anim.x,y0=anim.y;
   if(out||blk){
-    robot.classList.add('shake');await sleep(500);robot.classList.remove('shake');
+    sfx.bump();
+    const x1=cx(nx,ny),y1=cy(nx,ny)-SLAB;
+    await tween(T*.9,t=>{const k=Math.sin(t*Math.PI)*.32;anim.x=x0+(x1-x0)*k;anim.y=y0+(y1-y0)*k;anim.hop=Math.sin(t*Math.PI*3)*3;});
+    anim.x=x0;anim.y=y0;anim.hop=0;drawObjects();
     progEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
-    const el=progEl.querySelector('[data-path="'+path+'"]');if(el)el.classList.add('bad');
-    setMsg('💥 <b>การ์ดใบที่ '+num+' ('+NAME[it.t]+')</b> ทำให้หุ่นยนต์'+(out?'ออกนอกแผนที่':'ชนถนนปิด')+' ตอนนี้หุ่นยนต์อยู่ที่ '+cell(pos.x,pos.y)+' หันไปทิศ'+DIR[pos.h]+' ลองไล่ดูการ์ดตั้งแต่ใบแรกว่าควรแก้ใบไหน','err');
+    const e=progEl.querySelector('[data-path="'+path+'"]');if(e)e.classList.add('bad');
+    setMsg('💥 <b>บล็อกที่ '+num+' ('+NAME[it.t]+')</b> ทำให้หุ่นยนต์'+(out?'ออกนอกแผนที่':'ชนถนนปิด')+' ตอนนี้อยู่ที่ '+cell(pos.x,pos.y)+' หันไปทิศ'+DIR[pos.h]+' ลองไล่ดูบล็อกตั้งแต่ก้อนแรกว่าควรแก้ก้อนไหน','err');
     return false;
   }
-  pos.x=nx;pos.y=ny;place();await sleep(520);return true;
+  sfx.step();
+  trail.push([pos.x,pos.y]);drawTrail();
+  const x1=cx(nx,ny),y1=cy(nx,ny)-SLAB;
+  anim.depth=Math.max(pos.x+pos.y,nx+ny)+.5;animTile={x:nx,y:ny};
+  await tween(T,t=>{const e=ease(t);anim.x=x0+(x1-x0)*e;anim.y=y0+(y1-y0)*e;anim.hop=Math.sin(t*Math.PI)*9;});
+  pos.x=nx;pos.y=ny;anim.hop=0;anim.depth=nx+ny+.5;drawObjects();updWhere();
+  await sleep(70*speed);return true;
 }
-
 async function run(){
   if(running)return;
-  if(!prog.length){setMsg('ยังไม่มีการ์ดเลย แตะการ์ดคำสั่งด้านล่างก่อนนะ','err');return;}
-  const hole=prog.findIndex(it=>it.t==='rep'&&!it.body);
-  if(hole>=0){setMsg('ช่อง <b>ทำซ้ำ</b> ยังว่างอยู่ ใส่การ์ดลงไปก่อนนะ','err');return;}
+  if(!prog.length){setMsg('ยังไม่มีบล็อกเลย แตะบล็อกคำสั่งด้านล่างก่อนนะ','err');return;}
+  if(prog.some(it=>it.t==='rep'&&!it.body)){setMsg('ช่อง <b>ทำซ้ำ</b> ยังว่างอยู่ ใส่บล็อกลงไปก่อนนะ','err');return;}
   progEl.querySelectorAll('.bad').forEach(e=>e.classList.remove('bad'));
-  resetRobot();await sleep(80);
+  resetBot();await sleep(60);
   running=true;setBusy(true);setMsg('🤖 กำลังทำงานตามคำสั่ง…');
   let ok=true;
   for(let i=0;i<prog.length&&ok;i++){
     const it=prog[i];
     if(it.t==='rep'){
-      for(let k=0;k<it.n&&ok;k++){
-        const lb=progEl.querySelector('.rep[data-path="'+i+'"] .rl');
-        if(lb)lb.textContent='🔁 ทำซ้ำ รอบที่ '+(k+1)+'/'+it.n;
-        ok=await step(it.body,i+'.0',(i+1)+' (ทำซ้ำรอบที่ '+(k+1)+')');
-      }
-    } else ok=await step(it,String(i),i+1);
+      const lb=progEl.querySelector('.rep[data-path="'+i+'"] .rl');
+      for(let k=0;k<it.n&&ok;k++){if(lb)lb.textContent='🔁 รอบที่ '+(k+1)+'/'+it.n;ok=await step(it.body,i+'.0',(i+1)+' (ทำซ้ำรอบที่ '+(k+1)+')');}
+      if(lb)lb.textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';
+    }else ok=await step(it,String(i),i+1);
   }
-  mark(null);
-  running=false;setBusy(false);
-  if(!ok){keepBadAfterRender();return;}
-  render();
-  finish();
-}
-let badPath=null;
-function keepBadAfterRender(){
-  running=false;
-  // relabel repeat labels without clearing the red card
-  progEl.querySelectorAll('.rep').forEach(g=>{const it=prog[+g.dataset.path];g.querySelector('.rl').textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';});
+  mark(null);running=false;setBusy(false);
+  if(ok)finish();
 }
 function finish(){
   const m=MISSIONS[mi];
-  const here=placeName(pos.x,pos.y);
-  if(!m.goal){setMsg('✅ หุ่นยนต์หยุดที่ <b>'+here+'</b> หันไปทิศ'+DIR[pos.h],'ok');return;}
+  if(!m.goal){setMsg('✅ หุ่นยนต์หยุดที่ <b>'+placeName(pos.x,pos.y)+'</b> หันไปทิศ'+DIR[pos.h],'ok');return;}
   if(pos.x===m.goal[0]&&pos.y===m.goal[1]){
     const n=countCards();
-    robot.classList.add('hop');
-    if(m.limit&&n>m.limit){setMsg('📦 ส่งของถึงแล้ว! แต่ใช้การ์ด '+n+' ใบ เกิน '+m.limit+' ใบ ลองใช้ 🔁 ทำซ้ำ แทนการ์ดเดินหน้าที่ซ้ำกันดูนะ','ok');return;}
-    setMsg('<div class="stars">⭐⭐⭐</div>🎉 <b>ส่งของสำเร็จ!</b> ถึง '+placeName(m.goal[0],m.goal[1])+' ใช้การ์ด '+n+' ใบ'+(mi<3?' · ลองภารกิจถัดไปได้เลย':''),'ok');
-  } else {
-    setMsg('🤔 หุ่นยนต์หยุดที่ <b>'+here+'</b> ยังไม่ถึง '+placeName(m.goal[0],m.goal[1])+' ลองไล่ดูการ์ดทีละใบว่าหุ่นยนต์ควรหันไปทางไหน','err');
+    let st=3;
+    if(m.limit&&n>m.limit)st=2;
+    stars[mi]=Math.max(stars[mi],st);store.set('kr-stars',stars);renderMissions();
+    celebrate();
+    if(st<3){setMsg('<div class="stars">⭐⭐<span style="opacity:.25">⭐</span></div>📦 ส่งของถึงแล้ว! แต่ใช้ '+n+' ก้อน เกิน '+m.limit+' ก้อน ลองใช้ 🔁 ทำซ้ำ แทนบล็อกเดินหน้าที่ซ้ำกันดูนะ','ok');return;}
+    setMsg('<div class="stars">⭐⭐⭐</div>🎉 <b>ส่งของสำเร็จ!</b> ถึง '+placeName(m.goal[0],m.goal[1])+' ใช้บล็อก '+n+' ก้อน'+(mi<3?' · ไปภารกิจถัดไปได้เลย':''),'ok');
+  }else{
+    sfx.miss();
+    setMsg('🤔 หุ่นยนต์หยุดที่ <b>'+placeName(pos.x,pos.y)+'</b> ยังไม่ถึง '+placeName(m.goal[0],m.goal[1])+' ลองไล่ดูบล็อกทีละก้อนว่าควรหันไปทางไหน','err');
   }
 }
-function setBusy(b){document.querySelectorAll('.pbtn,.cbtn,.tab,#answer').forEach(e=>e.disabled=b);}
+async function celebrate(){
+  sfx.win();
+  // happy hops
+  for(let i=0;i<2;i++)await tween(380,t=>{anim.hop=Math.sin(t*Math.PI)*16;});
+  anim.hop=0;drawObjects();
+}
+function setBusy(b){document.querySelectorAll('.tbtn,#run,#undo,#clear,.mcard,#answer').forEach(e=>e.disabled=b);}
 
-MISSIONS.forEach((m,i)=>{const b=document.createElement('button');b.className='tab';b.textContent=m.tab;b.setAttribute('role','tab');b.onclick=()=>loadMission(i);$('tabs').appendChild(b);});
+/* ---------- confetti (canvas) ---------- */
+const cv=$('confetti'),cx2=cv.getContext('2d');let parts=[];
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#8CCB9B','#8EC3EA','#F4D35E','#F2A65A','#A84F12'];
+  const r=world.getBoundingClientRect();
+  for(let i=0;i<120;i++)parts.push({x:r.left+r.width/2,y:r.top+r.height*.35,vx:(Math.random()-.5)*11,vy:-Math.random()*11-3,s:4+Math.random()*5,c:cols[i%5],a:Math.random()*6,life:1});
+  requestAnimationFrame(drawConfetti);
+}
+function drawConfetti(){
+  cx2.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.vy+=.32;p.x+=p.vx;p.y+=p.vy;p.a+=.15;p.life-=.012;cx2.save();cx2.globalAlpha=Math.max(0,p.life);cx2.translate(p.x,p.y);cx2.rotate(p.a);cx2.fillStyle=p.c;cx2.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);cx2.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cv.height+20);
+  if(parts.length)requestAnimationFrame(drawConfetti);else cx2.clearRect(0,0,cv.width,cv.height);
+}
+const _cel=celebrate;celebrate=async function(){confetti();return _cel();};
+
+/* ---------- wire up ---------- */
 document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>add(b.dataset.add));
 $('run').onclick=run;
 $('undo').onclick=()=>{if(running||!prog.length)return;const last=prog[prog.length-1];if(last.t==='rep'&&last.body)last.body=null;else prog.pop();edited();};
 $('clear').onclick=()=>{if(running)return;prog=[];edited();};
 $('answer').onclick=()=>{const m=MISSIONS[mi];if(!m.answer||running)return;prog=clone(m.answer);edited();setMsg('📖 นี่คือคำตอบตัวอย่าง กด ▶ เพื่อดูหุ่นยนต์ทำงาน');};
-window.addEventListener('resize',()=>place(true));
+document.querySelectorAll('.speed button').forEach(b=>b.onclick=()=>{speed=+b.dataset.sp;document.querySelectorAll('.speed button').forEach(x=>x.classList.toggle('on',x===b));});
+window.KR={state:()=>({prog:clone(prog),pos:{...pos},mi,running,stars:[...stars]})};
 loadMission(0);
 })();
 </script>

@@ -39,32 +39,42 @@ button{font-family:'Kanit',sans-serif;color:var(--ink)}
 #floater{transform-style:preserve-3d;animation:float 6s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 #plane{position:relative;transform-style:preserve-3d;transform:rotateX(52deg) rotateZ(-8deg);border-radius:18px}
-.grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:4px;padding:6px;border-radius:18px;background:rgba(217,207,185,.92);box-shadow:0 0 0 3px rgba(255,255,255,.55)}
-.tile{border-radius:10px;background:rgba(243,235,220,.95);position:relative}
-.tile.road{background:rgba(237,227,207,.95)}
-.tile.start{box-shadow:inset 0 0 0 4px #8CCB9B}
+.grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:3px;padding:6px;border-radius:18px;background:#9ED08A;box-shadow:0 0 0 3px rgba(255,255,255,.6)}
+.tile{border-radius:8px;background:#F6EFE0;position:relative;box-shadow:inset 0 -3px 0 rgba(30,42,68,.08)}
+.tile.road:nth-child(even){background:#EFE6D3}
+.tile.start{background:#F2A65A!important}
 .tile.goal{box-shadow:inset 0 0 0 5px #E8B400;animation:goal 1.6s ease-in-out infinite alternate}
-@keyframes goal{from{background:#FFF6C9}to{background:#FFE07A}}
+@keyframes goal{from{background:#FFE68A}to{background:#FFD23F}}
 .tile.block{background:repeating-linear-gradient(45deg,#f6d2c4 0 10px,#fbe6dd 10px 20px)}
-.tile.trail{background:rgba(140,203,155,.55)}
+.tile.trail{background:radial-gradient(circle,#5DB075 0 22%,transparent 24%),#F6EFE0!important}
 .tile .cell{position:absolute;left:5px;bottom:3px;font-family:'Kanit';font-size:11px;color:#8a8270}
-.edge{position:absolute;left:0;width:100%;height:16px;top:100%;transform-origin:top;transform:rotateX(-90deg);background:linear-gradient(#b9ab8c,#8f8165);border-radius:0 0 12px 12px}
+.edge{position:absolute;left:0;width:100%;height:30px;top:100%;transform-origin:top;transform:rotateX(-90deg);background:linear-gradient(#79B26A 0 30%,#9C7A55 30%,#7E6143);border-radius:0 0 14px 14px}
 .shadow{position:absolute;left:4%;top:4%;width:92%;height:92%;transform:translateZ(-60px);background:rgba(0,0,0,.28);filter:blur(18px);border-radius:30px}
 /* billboards (stand up toward viewer) */
 .bb{position:absolute;left:0;top:0;transform-style:preserve-3d;pointer-events:none}
 .bb .card{position:absolute;transform-origin:50% 100%;transform:rotateZ(8deg) rotateX(-52deg);text-align:center;white-space:nowrap}
 .bb .ic{line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.3))}
-.bb .nm{font-family:'Kanit';font-weight:600;font-size:12px;background:rgba(255,255,255,.88);border-radius:8px;padding:1px 6px;display:inline-block;margin-top:2px}
+.bb .nm{font-family:'Kanit';font-weight:500;font-size:12px;background:rgba(255,255,255,.92);border-radius:9px;padding:1px 7px;display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 /* 3D robot */
 #bot{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform .55s ease-in-out}
 #bot .f{position:absolute;backface-visibility:visible;border:2px solid #1E2A44;border-radius:4px}
-#bot .body{background:#4C7BD9}
-#bot .body.top{background:#6E97E8}
-#bot .head{background:#EAF2FF}
-#bot .head.top{background:#ffffff}
+#bot .f{border-width:1.5px;border-color:rgba(30,42,68,.55)}
+#bot .body{background:#C9D6E8}
+#bot .body.top{background:#EEF3FA}
+#bot .head{background:#E8954B}
+#bot .head.top{background:#F6B575}
 #bot .box{background:#D9A066}
+#bot .ant{background:#DCE5F1;border:none}
+#bot .ball{background:#F4D35E;border-color:#E0B92E;border-radius:50%}
+#bot .panel-dot{width:26%;height:30%;border-radius:50%;background:#8CCB9B;border:2px solid #fff;margin:auto;position:relative;top:35%}
+#bot .harrow{position:absolute;background:#F07A1A;clip-path:polygon(50% 0,100% 34%,66% 34%,66% 100%,34% 100%,34% 34%,0 34%);transform:translateZ(1px);animation:hpulse 1.2s ease-in-out infinite alternate}
+@keyframes hpulse{from{opacity:.55}to{opacity:1}}
+.bb .art{display:block;filter:drop-shadow(0 6px 4px rgba(0,0,0,.25))}
+.bb .nm.bad{background:#C62828;color:#fff}
+.bb .pin{display:block;animation:pin 1.6s ease-in-out infinite;filter:drop-shadow(0 4px 3px rgba(0,0,0,.3))}
+@keyframes pin{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 #bot .face{display:flex;align-items:center;justify-content:center;gap:22%}
-#bot .eye{width:16%;height:30%;background:#1E2A44;border-radius:50%}
+#bot .eye{width:14%;height:34%;background:#1E2A44;border-radius:50%;box-shadow:inset 2px 2px 0 rgba(255,255,255,.6)}
 #bot .ring{position:absolute;border-radius:50%;border:4px solid rgba(168,79,18,.85);border-top-color:transparent;border-left-color:transparent}
 #bot .nose{position:absolute;width:0;height:0}
 #bot.hop{animation:none}
@@ -126,7 +136,7 @@ table.stats{width:100%;border-collapse:collapse;font-size:16px;margin-top:8px}
 table.stats td,table.stats th{border-bottom:1px solid #e4dccb;padding:6px 4px;text-align:left}
 table.stats th{font-family:'Kanit';font-weight:600}
 .hidden{display:none!important}
-@media (prefers-reduced-motion: reduce){#floater{animation:none}.tile.goal{animation:none}}
+@media (prefers-reduced-motion: reduce){#floater{animation:none}.tile.goal,#bot .harrow,.bb .pin{animation:none}}
 </style>
 </head>
 <body>
@@ -139,6 +149,7 @@ table.stats th{font-family:'Kanit';font-weight:600}
     <button class="pill" id="btnHand">✋ หยิบด้วยมือ</button>
     <button class="pill" id="btnCam">🔄 สลับกล้อง</button>
     <button class="pill" id="btnStats">📊 ผลการเล่น</button>
+    <button class="pill" id="btnSnd" aria-label="เปิด/ปิดเสียง">🔊</button>
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="mission" id="mission"></div>
@@ -164,6 +175,8 @@ table.stats th{font-family:'Kanit';font-weight:600}
   </div>
 </div>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="noodlesmound" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#F5BE7A"/><stop offset="1" stop-color="#C97C2E"/></radialGradient><radialGradient id="plinthbead" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D9D6C8"/></radialGradient><linearGradient id="jarjar" x1="0" x2="1"><stop offset="0" stop-color="#B0683F"/><stop offset="0.45" stop-color="#8A4B2A"/><stop offset="1" stop-color="#4F2914"/></linearGradient><radialGradient id="jarhl" cx="30%" cy="35%" r="40%"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient><radialGradient id="mountainsun" cx="40%" cy="40%" r="60%"><stop offset="0" stop-color="#FFF1A8"/><stop offset="1" stop-color="#F2B630"/></radialGradient><symbol id="ic-noodles" viewBox="0 0 200 190"><ellipse cx="100" cy="118.0" rx="62" ry="28" fill="#B9C3D1"/><ellipse cx="100" cy="113.0" rx="62" ry="28" fill="#F4F7FB"/><ellipse cx="100" cy="111.0" rx="48" ry="20" fill="#E3E9F1"/><path d="M56 112.0 q44 -58 88 0 q-44 18 -88 0 Z" fill="url(#noodlesmound)"/><path d="M66 92.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><path d="M70 100.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><path d="M74 108.0 q8 -7 16 0 t16 0 t16 0 t16 0" fill="none" stroke="#B5691F" stroke-width="2.4" stroke-linecap="round"/><rect x="80" y="88.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 80 88.0)"/><rect x="106" y="82.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 106 82.0)"/><rect x="122" y="98.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 122 98.0)"/><rect x="92" y="104.0" width="11" height="4" rx="2" fill="#4E9A5D" transform="rotate(-20 92 104.0)"/><circle cx="88" cy="94.0" r="3.6" fill="#D9534F"/><circle cx="116" cy="88.0" r="3.6" fill="#D9534F"/><circle cx="130" cy="106.0" r="3.6" fill="#D9534F"/><path d="M84 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/><path d="M100 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/><path d="M116 66.0 q-5 -9 0 -18 q5 -9 0 -18" fill="none" stroke="#9AA6B8" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/></symbol><symbol id="ic-gate" viewBox="0 0 200 190"><polygon points="48.0,100.0 74.0,113.0 74.0,79.0 48.0,66.0" fill="#C9875A"/><polygon points="90.0,105.0 74.0,113.0 74.0,79.0 90.0,71.0" fill="#9C6946"/><polygon points="64.0,58.0 90.0,71.0 74.0,79.0 48.0,66.0" fill="#D29C77"/><polygon points="50.0,67.0 58.0,71.0 58.0,63.0 50.0,59.0" fill="#C9875A"/><polygon points="74.0,63.0 58.0,71.0 58.0,63.0 74.0,55.0" fill="#9C6946"/><polygon points="66.0,51.0 74.0,55.0 58.0,63.0 50.0,59.0" fill="#D29C77"/><polygon points="62.0,73.0 70.0,77.0 70.0,69.0 62.0,65.0" fill="#C9875A"/><polygon points="86.0,69.0 70.0,77.0 70.0,69.0 86.0,61.0" fill="#9C6946"/><polygon points="78.0,57.0 86.0,61.0 70.0,69.0 62.0,65.0" fill="#D29C77"/><polygon points="68.0,116.0 104.0,134.0 104.0,76.0 68.0,58.0" fill="#D9A06F"/><polygon points="132.0,120.0 104.0,134.0 104.0,76.0 132.0,62.0" fill="#A97C56"/><polygon points="96.0,44.0 132.0,62.0 104.0,76.0 68.0,58.0" fill="#DFB188"/><polygon points="78.0,121.0 94.0,129.0 94.0,109.0 86.0,97.0 78.0,101.0" fill="#3B2A22"/><polygon points="56.0,60.0 104.0,84.0 124.0,52.0 76.0,28.0" fill="#B5442F"/><polygon points="144.0,64.0 104.0,84.0 124.0,52.0" fill="#8F3423"/><polygon points="74.0,43.0 102.0,57.0 114.0,33.0 86.0,19.0" fill="#A33D2A"/><polygon points="126.0,45.0 102.0,57.0 114.0,33.0" fill="#7A2C1E"/><polygon points="110.0,131.0 136.0,144.0 136.0,110.0 110.0,97.0" fill="#C9875A"/><polygon points="152.0,136.0 136.0,144.0 136.0,110.0 152.0,102.0" fill="#9C6946"/><polygon points="126.0,89.0 152.0,102.0 136.0,110.0 110.0,97.0" fill="#D29C77"/><polygon points="116.0,100.0 124.0,104.0 124.0,96.0 116.0,92.0" fill="#C9875A"/><polygon points="140.0,96.0 124.0,104.0 124.0,96.0 140.0,88.0" fill="#9C6946"/><polygon points="132.0,84.0 140.0,88.0 124.0,96.0 116.0,92.0" fill="#D29C77"/><polygon points="128.0,106.0 136.0,110.0 136.0,102.0 128.0,98.0" fill="#C9875A"/><polygon points="152.0,102.0 136.0,110.0 136.0,102.0 152.0,94.0" fill="#9C6946"/><polygon points="144.0,90.0 152.0,94.0 136.0,102.0 128.0,98.0" fill="#D29C77"/><line x1="100.0" y1="26.0" x2="100.0" y2="12.0" stroke="#E2B34A" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="ic-plinth" viewBox="0 0 200 190"><polygon points="40.0,118.0 100.0,148.0 100.0,138.0 40.0,108.0" fill="#BEBCB2"/><polygon points="160.0,118.0 100.0,148.0 100.0,138.0 160.0,108.0" fill="#94928A"/><polygon points="100.0,78.0 160.0,108.0 100.0,138.0 40.0,108.0" fill="#C9C8BF"/><polygon points="56.0,108.0 100.0,130.0 100.0,120.0 56.0,98.0" fill="#C9C6BC"/><polygon points="144.0,108.0 100.0,130.0 100.0,120.0 144.0,98.0" fill="#9C9A92"/><polygon points="100.0,76.0 144.0,98.0 100.0,120.0 56.0,98.0" fill="#D2D0C8"/><polygon points="72.0,98.0 100.0,112.0 100.0,58.0 72.0,44.0" fill="#CBC8BF"/><polygon points="128.0,98.0 100.0,112.0 100.0,58.0 128.0,44.0" fill="#9E9C94"/><polygon points="100.0,30.0 128.0,44.0 100.0,58.0 72.0,44.0" fill="#D4D1CA"/><polygon points="64.0,44.0 100.0,62.0 100.0,56.0 64.0,38.0" fill="#C9C6BC"/><polygon points="136.0,44.0 100.0,62.0 100.0,56.0 136.0,38.0" fill="#9C9A92"/><polygon points="100.0,20.0 136.0,38.0 100.0,56.0 64.0,38.0" fill="#D2D0C8"/><circle cx="73.0" cy="55.5" r="4.6" fill="url(#plinthbead)"/><circle cx="75.0" cy="62.2" r="4.6" fill="url(#plinthbead)"/><circle cx="77.0" cy="68.5" r="4.6" fill="url(#plinthbead)"/><circle cx="79.0" cy="74.1" r="4.6" fill="url(#plinthbead)"/><circle cx="81.0" cy="78.6" r="4.6" fill="url(#plinthbead)"/><circle cx="83.0" cy="81.8" r="4.6" fill="url(#plinthbead)"/><circle cx="85.0" cy="83.5" r="4.6" fill="url(#plinthbead)"/><circle cx="87.0" cy="83.8" r="4.6" fill="url(#plinthbead)"/><circle cx="89.0" cy="82.6" r="4.6" fill="url(#plinthbead)"/><circle cx="91.0" cy="80.1" r="4.6" fill="url(#plinthbead)"/><circle cx="93.0" cy="76.5" r="4.6" fill="url(#plinthbead)"/><circle cx="95.0" cy="72.2" r="4.6" fill="url(#plinthbead)"/><circle cx="97.0" cy="67.5" r="4.6" fill="url(#plinthbead)"/><circle cx="85.0" cy="83.5" r="6" fill="#D9534F"/><circle cx="85.0" cy="83.5" r="3" fill="#F4D35E"/><path d="M82.0 88.5 l-3 16 M88.0 88.5 l3 16" stroke="#F2A65A" stroke-width="2.5" stroke-linecap="round"/></symbol><symbol id="ic-prang" viewBox="0 0 200 190"><polygon points="32.0,118.0 100.0,152.0 100.0,142.0 32.0,108.0" fill="#BBA67F"/><polygon points="168.0,118.0 100.0,152.0 100.0,142.0 168.0,108.0" fill="#918163"/><polygon points="100.0,74.0 168.0,108.0 100.0,142.0 32.0,108.0" fill="#C7B696"/><polygon points="48.0,108.0 100.0,134.0 100.0,122.0 48.0,96.0" fill="#C7B38C"/><polygon points="152.0,108.0 100.0,134.0 100.0,122.0 152.0,96.0" fill="#9B8B6D"/><polygon points="100.0,70.0 152.0,96.0 100.0,122.0 48.0,96.0" fill="#D1C0A0"/><polygon points="64.0,96.0 100.0,114.0 100.0,84.0 64.0,66.0" fill="#CDB993"/><polygon points="136.0,96.0 100.0,114.0 100.0,84.0 136.0,66.0" fill="#9F9072"/><polygon points="100.0,48.0 136.0,66.0 100.0,84.0 64.0,66.0" fill="#D6C5A6"/><polygon points="76.0,102.0 88.0,108.0 88.0,92.0 82.0,83.0 76.0,86.0" fill="#4A3E33"/><polygon points="68.0,66.0 100.0,82.0 100.0,71.0 68.0,55.0" fill="#CDB993"/><polygon points="132.0,66.0 100.0,82.0 100.0,71.0 132.0,55.0" fill="#9F9072"/><polygon points="100.0,39.0 132.0,55.0 100.0,71.0 68.0,55.0" fill="#D6C5A6"/><polygon points="73.0,55.0 100.0,68.5 100.0,57.5 73.0,44.0" fill="#C6B38E"/><polygon points="127.0,55.0 100.0,68.5 100.0,57.5 127.0,44.0" fill="#9A8B6E"/><polygon points="100.0,30.5 127.0,44.0 100.0,57.5 73.0,44.0" fill="#D0C0A2"/><polygon points="78.0,44.0 100.0,55.0 100.0,44.0 78.0,33.0" fill="#C0AD8A"/><polygon points="122.0,44.0 100.0,55.0 100.0,44.0 122.0,33.0" fill="#95866B"/><polygon points="100.0,22.0 122.0,33.0 100.0,44.0 78.0,33.0" fill="#CBBB9F"/><polygon points="83.0,33.0 100.0,41.5 100.0,30.5 83.0,22.0" fill="#BAA885"/><polygon points="117.0,33.0 100.0,41.5 100.0,30.5 117.0,22.0" fill="#918367"/><polygon points="100.0,13.5 117.0,22.0 100.0,30.5 83.0,22.0" fill="#C6B79A"/><polygon points="88.0,22.0 100.0,28.0 100.0,17.0 88.0,11.0" fill="#B4A281"/><polygon points="112.0,22.0 100.0,28.0 100.0,17.0 112.0,11.0" fill="#8C7E64"/><polygon points="100.0,5.0 112.0,11.0 100.0,17.0 88.0,11.0" fill="#C1B297"/><polygon points="92.0,11.0 100.0,15.0 100.0,-3.0" fill="#B19F7C"/><polygon points="108.0,11.0 100.0,15.0 100.0,-3.0" fill="#84775D"/></symbol><symbol id="ic-jar" viewBox="0 0 200 190"><ellipse cx="100" cy="120.0" rx="40" ry="14" fill="#1E2A44" opacity="0.18"/><path d="M82 26.0 h36 v8 q34 18 30 52 q-4 34 -48 34 q-44 0 -48 -34 q-4 -34 30 -52 Z" fill="url(#jarjar)"/><path d="M82 26.0 h36 v8 q34 18 30 52 q-4 34 -48 34 q-44 0 -48 -34 q-4 -34 30 -52 Z" fill="url(#jarhl)"/><ellipse cx="100" cy="26.0" rx="20" ry="6" fill="#6E3A20"/><ellipse cx="100" cy="26.0" rx="13" ry="3.5" fill="#2E1609"/><path d="M60 56.0 q40 12 80 0" fill="none" stroke="#C78456" stroke-width="2.5" opacity="0.8"/><path d="M60 72.0 q40 12 80 0" fill="none" stroke="#C78456" stroke-width="2.5" opacity="0.8"/><path d="M62 88.0 l9 -8 l9 8 l9 -8 l9 8 l9 -8 l9 8 l9 -8 l9 8" fill="none" stroke="#D59A6A" stroke-width="2.5"/></symbol><symbol id="ic-silk" viewBox="0 0 200 190"><polygon points="44.0,112.0 112.0,146.0 112.0,132.0 44.0,98.0" fill="#7A3E9D"/><polygon points="156.0,124.0 112.0,146.0 112.0,132.0 156.0,110.0" fill="#5F307A"/><polygon points="88.0,76.0 156.0,110.0 112.0,132.0 44.0,98.0" fill="#9160AE"/><polygon points="50.0,108.0 54.0,106.0 58.0,112.0 54.0,114.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="62.0,114.0 66.0,112.0 70.0,118.0 66.0,120.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="74.0,120.0 78.0,118.0 82.0,124.0 78.0,126.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="86.0,126.0 90.0,124.0 94.0,130.0 90.0,132.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="98.0,132.0 102.0,130.0 106.0,136.0 102.0,138.0" fill="none" stroke="#E2B34A" stroke-width="1.6"/><polygon points="44.0,97.0 112.0,131.0 112.0,117.0 44.0,83.0" fill="#C0395A"/><polygon points="156.0,109.0 112.0,131.0 112.0,117.0 156.0,95.0" fill="#952C46"/><polygon points="88.0,61.0 156.0,95.0 112.0,117.0 44.0,83.0" fill="#CB5C77"/><polygon points="50.0,93.0 54.0,91.0 58.0,97.0 54.0,99.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="62.0,99.0 66.0,97.0 70.0,103.0 66.0,105.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="74.0,105.0 78.0,103.0 82.0,109.0 78.0,111.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="86.0,111.0 90.0,109.0 94.0,115.0 90.0,117.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="98.0,117.0 102.0,115.0 106.0,121.0 102.0,123.0" fill="none" stroke="#F4D35E" stroke-width="1.6"/><polygon points="44.0,82.0 112.0,116.0 112.0,102.0 44.0,68.0" fill="#2F6F8F"/><polygon points="156.0,94.0 112.0,116.0 112.0,102.0 156.0,80.0" fill="#24566F"/><polygon points="88.0,46.0 156.0,80.0 112.0,102.0 44.0,68.0" fill="#5488A3"/><polygon points="50.0,78.0 54.0,76.0 58.0,82.0 54.0,84.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="62.0,84.0 66.0,82.0 70.0,88.0 66.0,90.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="74.0,90.0 78.0,88.0 82.0,94.0 78.0,96.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="86.0,96.0 90.0,94.0 94.0,100.0 90.0,102.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/><polygon points="98.0,102.0 102.0,100.0 106.0,106.0 102.0,108.0" fill="none" stroke="#F2A65A" stroke-width="1.6"/></symbol><symbol id="ic-mountain" viewBox="0 0 200 190"><circle cx="156" cy="30" r="15" fill="url(#mountainsun)"/><polygon points="36.0,106.0 96.0,136.0 96.0,22.0" fill="#4E8B5F"/><polygon points="156.0,106.0 96.0,136.0 96.0,22.0" fill="#3A6847"/><polygon points="56.0,134.0 104.0,158.0 104.0,78.0" fill="#5E9E6E"/><polygon points="152.0,134.0 104.0,158.0 104.0,78.0" fill="#467652"/><rect x="38.0" y="108.0" width="4" height="10" fill="#6E4A2F"/><polygon points="26.0,108.0 40.0,115.0 40.0,84.0" fill="#2F6E45"/><polygon points="54.0,108.0 40.0,115.0 40.0,84.0" fill="#235233"/><rect x="154.0" y="114.0" width="4" height="10" fill="#6E4A2F"/><polygon points="142.0,114.0 156.0,121.0 156.0,90.0" fill="#2F6E45"/><polygon points="170.0,114.0 156.0,121.0 156.0,90.0" fill="#235233"/><rect x="70.0" y="130.0" width="4" height="10" fill="#6E4A2F"/><polygon points="58.0,130.0 72.0,137.0 72.0,106.0" fill="#2F6E45"/><polygon points="86.0,130.0 72.0,137.0 72.0,106.0" fill="#235233"/></symbol><symbol id="ic-barrier" viewBox="0 0 200 190"><polygon points="66.0,105.0 72.0,108.0 72.0,82.0 66.0,79.0" fill="#8A8F99"/><polygon points="80.0,104.0 72.0,108.0 72.0,82.0 80.0,78.0" fill="#6B6F77"/><polygon points="74.0,75.0 80.0,78.0 72.0,82.0 66.0,79.0" fill="#9FA3AB"/><polygon points="120.0,132.0 126.0,135.0 126.0,109.0 120.0,106.0" fill="#8A8F99"/><polygon points="134.0,131.0 126.0,135.0 126.0,109.0 134.0,105.0" fill="#6B6F77"/><polygon points="128.0,102.0 134.0,105.0 126.0,109.0 120.0,106.0" fill="#9FA3AB"/><polygon points="67.0,86.5 79.0,92.5 79.0,80.5 67.0,74.5" fill="#D9534F"/><polygon points="85.0,89.5 79.0,92.5 79.0,80.5 85.0,77.5" fill="#A9403D"/><polygon points="73.0,71.5 85.0,77.5 79.0,80.5 67.0,74.5" fill="#DF716E"/><polygon points="79.0,92.5 91.0,98.5 91.0,86.5 79.0,80.5" fill="#F4F1EA"/><polygon points="97.0,95.5 91.0,98.5 91.0,86.5 97.0,83.5" fill="#BEBBB6"/><polygon points="85.0,77.5 97.0,83.5 91.0,86.5 79.0,80.5" fill="#F5F3ED"/><polygon points="91.0,98.5 103.0,104.5 103.0,92.5 91.0,86.5" fill="#D9534F"/><polygon points="109.0,101.5 103.0,104.5 103.0,92.5 109.0,89.5" fill="#A9403D"/><polygon points="97.0,83.5 109.0,89.5 103.0,92.5 91.0,86.5" fill="#DF716E"/><polygon points="103.0,104.5 115.0,110.5 115.0,98.5 103.0,92.5" fill="#F4F1EA"/><polygon points="121.0,107.5 115.0,110.5 115.0,98.5 121.0,95.5" fill="#BEBBB6"/><polygon points="109.0,89.5 121.0,95.5 115.0,98.5 103.0,92.5" fill="#F5F3ED"/><polygon points="115.0,110.5 127.0,116.5 127.0,104.5 115.0,98.5" fill="#D9534F"/><polygon points="133.0,113.5 127.0,116.5 127.0,104.5 133.0,101.5" fill="#A9403D"/><polygon points="121.0,95.5 133.0,101.5 127.0,104.5 115.0,98.5" fill="#DF716E"/></symbol></defs></svg>
+<canvas id="confetti" style="position:fixed;inset:0;pointer-events:none;z-index:65"></canvas>
 <div class="trash" id="trash">ปล่อยนอกรางเพื่อลบบล็อก 🗑️</div>
 <div id="hand"></div>
 <div class="handinfo" id="handinfo"></div>
@@ -193,13 +206,13 @@ table.stats th{font-family:'Kanit';font-weight:600}
 const $=id=>document.getElementById(id);
 const COLS='ABCDE';
 const PLACES={
-  '0,0':{ic:'⛰️',nm:'เขาใหญ่'},
-  '2,0':{ic:'🌼',nm:'อนุสาวรีย์ท้าวสุรนารี'},
-  '4,0':{ic:'🛕',nm:'ปราสาทหินพิมาย'},
-  '2,2':{ic:'🏯',nm:'ประตูชุมพล'},
-  '4,2':{ic:'🏺',nm:'ด่านเกวียน'},
-  '0,4':{ic:'🍜',nm:'ร้านผัดหมี่'},
-  '4,4':{ic:'🧵',nm:'ผ้าไหมปักธงชัย'}
+  '0,0':{ic:'mountain',nm:'เขาใหญ่'},
+  '2,0':{ic:'plinth',nm:'อนุสาวรีย์ท้าวสุรนารี'},
+  '4,0':{ic:'prang',nm:'ปราสาทหินพิมาย'},
+  '2,2':{ic:'gate',nm:'ประตูชุมพล'},
+  '4,2':{ic:'jar',nm:'ด่านเกวียน'},
+  '0,4':{ic:'noodles',nm:'ร้านผัดหมี่'},
+  '4,4':{ic:'silk',nm:'ผ้าไหมปักธงชัย'}
 };
 const ARROW={
   f:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/>',
@@ -225,6 +238,43 @@ const stats=MISSIONS.map(()=>({runs:0,fails:0,ok:0,best:null}));
 const clone=a=>JSON.parse(JSON.stringify(a));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const plane=$('plane'), railEl=$('rail'), msg=$('msg');
+
+/* ---------- sound (Web Audio) ---------- */
+let muted=false;try{muted=localStorage.getItem('kr-muted')==='true';}catch(e){}
+let ac=null;
+function tone(freq,dur,type,vol,when){
+  if(muted)return;
+  try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+(when||0),o=ac.createOscillator(),g=ac.createGain();
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.08,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur+0.05);}catch(e){}
+}
+const sfx={
+  add(){tone(660,.09,'triangle',.06);},
+  grab(){tone(520,.06,'triangle',.05);},
+  step(){tone(420,.08,'square',.025);tone(520,.06,'square',.02,.07);},
+  turn(){tone(300,.14,'sine',.05);tone(450,.12,'sine',.04,.06);},
+  bump(){tone(140,.25,'sawtooth',.06);tone(110,.25,'sawtooth',.05,.08);},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.07,i*.11));},
+  miss(){tone(330,.18,'triangle',.05);tone(262,.25,'triangle',.05,.15);}
+};
+
+/* ---------- confetti ---------- */
+const cvs=document.getElementById('confetti'),cctx=cvs.getContext('2d');let parts=[];
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  cvs.width=innerWidth;cvs.height=innerHeight;const cols=['#8CCB9B','#8EC3EA','#F4D35E','#F2A65A','#A84F12'];
+  const r=document.getElementById('stage').getBoundingClientRect();
+  for(let i=0;i<140;i++)parts.push({x:r.left+r.width/2,y:r.top+r.height*.45,vx:(Math.random()-.5)*12,vy:-Math.random()*12-3,s:5+Math.random()*6,c:cols[i%5],a:Math.random()*6,life:1});
+  requestAnimationFrame(drawConf);
+}
+function drawConf(){
+  cctx.clearRect(0,0,cvs.width,cvs.height);
+  parts.forEach(p=>{p.vy+=.32;p.x+=p.vx;p.y+=p.vy;p.a+=.15;p.life-=.011;cctx.save();cctx.globalAlpha=Math.max(0,p.life);cctx.translate(p.x,p.y);cctx.rotate(p.a);cctx.fillStyle=p.c;cctx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66);cctx.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cvs.height+20);
+  if(parts.length)requestAnimationFrame(drawConf);else cctx.clearRect(0,0,cvs.width,cvs.height);
+}
 
 /* ---------- camera ---------- */
 let facing='environment', stream=null;
@@ -253,15 +303,17 @@ function box(w,d,h,z0,cls,frontInner){
 function robotHTML(t){
   const bw=t*.5,bd=t*.4,bh=t*.36, hw=t*.4,hd=t*.32,hh=t*.26, kw=t*.3,kd=t*.12,kh=t*.24;
   const eyes='<div class="eye"></div><div class="eye"></div>';
-  return '<div id="botz">'+
-    box(bw,bd,bh,4,'body')+
+  const aw=t*.5, al=t*1.15;
+  return '<div class="harrow" style="left:'+(-aw/2)+'px;top:'+(-al)+'px;width:'+aw+'px;height:'+(al-t*.18)+'px"></div>'+
+    '<div id="botz">'+
+    box(bw,bd,bh,4,'body','<div class="panel-dot"></div>')+
     box(hw,hd,hh,4+bh,'head',eyes)+
     '<div style="position:absolute;left:0;top:0;transform-style:preserve-3d;transform:translate3d(0,'+(bd/2+kd/2)+'px,0)">'+box(kw,kd,kh,10,'box')+'</div>'+
-    '<div style="position:absolute;left:0;top:0;transform-style:preserve-3d;transform:translate3d(0,'+(-bd/2-t*.12)+'px,2px)"><div style="position:absolute;width:0;height:0;left:'+(-t*.1)+'px;top:'+(-t*.08)+'px;border-left:'+(t*.1)+'px solid transparent;border-right:'+(t*.1)+'px solid transparent;border-bottom:'+(t*.13)+'px solid #A84F12"></div></div>'+
+    box(t*.035,t*.035,t*.16,4+bh+hh,'ant')+box(t*.09,t*.09,t*.09,4+bh+hh+t*.16,'ball')+
   '</div>';
 }
-function billboard(x,y,html,w,h){
-  return '<div class="bb" style="transform:translate3d('+x+'px,'+y+'px,1px)"><div class="card" style="width:'+w+'px;height:'+h+'px;left:'+(-w/2)+'px;top:'+(-h)+'px">'+html+'</div></div>';
+function billboard(x,y,html,w,h,id){
+  return '<div class="bb"'+(id?' data-bb="'+id+'"':'')+' style="transform:translate3d('+x+'px,'+y+'px,1px)"><div class="card" style="width:'+w+'px;height:'+h+'px;left:'+(-w/2)+'px;top:'+(-h)+'px">'+html+'</div></div>';
 }
 function layout(){
   const stage=$('stage'),fl=$('floater');
@@ -297,13 +349,16 @@ function buildBoard(){
     g+='<div class="'+cls+'" data-c="'+x+','+y+'"><span class="cell">'+COLS[x]+(y+1)+'</span></div>';
   }
   g+='</div><div class="edge"></div>';
-  const ic=Math.round(tile*.42);
+  const AW=tile*1.6, AH=AW*150/200;
+  const art=k=>'<svg class="art" viewBox="0 -4 200 150" width="'+AW+'" height="'+AH+'"><use href="#ic-'+k+'"/></svg>';
   for(const k in PLACES){
     const [x,y]=k.split(',').map(Number);
     if(m.block.some(b=>b[0]===x&&b[1]===y))continue;
-    g+=billboard(cx(x),cy(y)-tile*.08,'<div class="ic" style="font-size:'+ic+'px">'+PLACES[k].ic+'</div><div class="nm">'+PLACES[k].nm+'</div>',tile*1.3,ic+22);
+    g+=billboard(cx(x),cy(y)+tile*.22,art(PLACES[k].ic),AW,AH,'p'+x+'_'+y);
+    g+=billboard(cx(x),cy(y)+tile*.47,'<div class="nm">'+PLACES[k].nm+'</div>',tile*1.4,20,'n'+x+'_'+y);
   }
-  m.block.forEach(b=>{g+=billboard(cx(b[0]),cy(b[1]),'<div class="ic" style="font-size:'+ic+'px">🚧</div><div class="nm">ถนนปิด</div>',tile*1.1,ic+22);});
+  m.block.forEach(b=>{g+=billboard(cx(b[0]),cy(b[1])+tile*.22,art('barrier'),AW,AH);g+=billboard(cx(b[0]),cy(b[1])+tile*.47,'<div class="nm bad">ถนนปิด</div>',tile*1.2,20);});
+  if(m.goal){g+=billboard(cx(m.goal[0]),cy(m.goal[1])-tile*.05,'<svg class="pin" viewBox="-16 -22 32 42" width="'+tile*.36+'" height="'+tile*.48+'"><path d="M0 18 C-12 6 -14 -2 -14 -6 A14 14 0 1 1 14 -6 C14 -2 12 6 0 18Z" fill="#C62828" stroke="#fff" stroke-width="2"/><circle cx="0" cy="-6" r="6" fill="#fff"/></svg>',tile*.36,tile*1.0);}
   g+='<div id="bot">'+robotHTML(tile)+'</div>';
   plane.innerHTML=g;
   placeBot(true);
@@ -312,6 +367,7 @@ function cx(x){return 6+(x+.5)*((S-12)/5);}
 function cy(y){return 6+(y+.5)*((S-12)/5);}
 function placeBot(instant){
   const b=$('bot');if(!b)return;
+  plane.querySelectorAll('[data-bb]').forEach(e=>{const id=e.dataset.bb;e.style.opacity=(id==='p'+pos.x+'_'+pos.y||id==='n'+pos.x+'_'+pos.y)?.25:1;});
   if(instant)b.style.transition='none';
   b.style.transform='translate3d('+cx(pos.x)+'px,'+(cy(pos.y)+tile*.06)+'px,0) rotateZ('+rot+'deg)';
   if(instant){b.offsetWidth;b.style.transition='';}
@@ -351,11 +407,11 @@ function addBlock(t,at){
   const last=prog[prog.length-1];
   if(t==='rep'){
     if(last&&last.t==='rep'&&!last.body){setMsg('ใส่บล็อกลงในช่อง <b>ทำซ้ำ</b> ก่อนนะ','err');return;}
-    const it={t:'rep',n:2,body:null};
+    const it={t:'rep',n:2,body:null};sfx.add();
     if(at==null)prog.push(it);else prog.splice(at,0,it);
   }else if(at==null&&last&&last.t==='rep'&&!last.body){last.body={t};}
   else{ if(at==null)prog.push({t});else prog.splice(at,0,{t}); }
-  edited();
+  sfx.add();edited();
 }
 
 /* ---------- unified drag (touch + hand) ---------- */
@@ -369,6 +425,7 @@ function pick(el,x,y){
   return false;
 }
 function makeGhost(){
+  sfx.grab();
   const g=document.createElement('div');
   g.className='blk ghost '+(drag.t==='rep'?'rp':drag.t);
   g.innerHTML=drag.t==='rep'?'<span style="font-size:26px">🔁</span>':chipHTML(drag.t);
@@ -449,19 +506,19 @@ function cell(x,y){return COLS[x]+(y+1);}
 function placeName(x,y){const p=PLACES[x+','+y];return cell(x,y)+(p?' ('+p.nm+')':'');}
 async function step(it,path,num){
   mark(path);
-  if(it.t==='r'){rot+=90;pos.h=(pos.h+1)%4;placeBot();await sleep(650);return true;}
-  if(it.t==='l'){rot-=90;pos.h=(pos.h+3)%4;placeBot();await sleep(650);return true;}
+  if(it.t==='r'){sfx.turn();rot+=90;pos.h=(pos.h+1)%4;placeBot();await sleep(650);return true;}
+  if(it.t==='l'){sfx.turn();rot-=90;pos.h=(pos.h+3)%4;placeBot();await sleep(650);return true;}
   const nx=pos.x+DX[pos.h],ny=pos.y+DY[pos.h];
   const out=nx<0||ny<0||nx>4||ny>4;
   const blk=!out&&MISSIONS[mi].block.some(b=>b[0]===nx&&b[1]===ny);
   if(out||blk){
-    const z=$('botz');z.classList.add('shake');await sleep(550);z.classList.remove('shake');
+    sfx.bump();const z=$('botz');z.classList.add('shake');await sleep(550);z.classList.remove('shake');
     railEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
     const el=railEl.querySelector('[data-path="'+path+'"]');if(el)el.classList.add('bad');
     setMsg('💥 <b>บล็อกที่ '+num+' ('+NAME[it.t]+')</b> ทำให้หุ่นยนต์'+(out?'ออกนอกแผนที่':'ชนถนนปิด')+' (อยู่ที่ '+cell(pos.x,pos.y)+' หันไปทิศ'+DIR[pos.h]+') ลองไล่ดูบล็อกตั้งแต่ก้อนแรก','err');
     return false;
   }
-  trail(pos.x,pos.y);pos.x=nx;pos.y=ny;placeBot();await sleep(650);return true;
+  sfx.step();trail(pos.x,pos.y);pos.x=nx;pos.y=ny;placeBot();await sleep(650);return true;
 }
 async function run(){
   if(running)return;
@@ -492,10 +549,10 @@ function finish(){
   if(pos.x===m.goal[0]&&pos.y===m.goal[1]){
     const n=countCards();$('botz').classList.add('hop');
     if(m.limit&&n>m.limit){stats[mi].fails++;setMsg('📦 ถึงแล้ว! แต่ใช้ '+n+' ก้อน เกิน '+m.limit+' ก้อน ลองใช้ 🔁 ทำซ้ำ แทนบล็อกที่ซ้ำกัน','ok');return;}
-    stats[mi].ok++;stats[mi].best=stats[mi].best==null?n:Math.min(stats[mi].best,n);
+    sfx.win();confetti();stats[mi].ok++;stats[mi].best=stats[mi].best==null?n:Math.min(stats[mi].best,n);
     setMsg('⭐⭐⭐ <b>ส่งของสำเร็จ!</b> ถึง '+placeName(m.goal[0],m.goal[1])+' ใช้บล็อก '+n+' ก้อน','ok');
   }else{
-    stats[mi].fails++;
+    stats[mi].fails++;sfx.miss();
     setMsg('🤔 หุ่นยนต์หยุดที่ <b>'+placeName(pos.x,pos.y)+'</b> ยังไม่ถึง '+placeName(m.goal[0],m.goal[1])+' ลองดูว่าควรหันไปทางไหน','err');
   }
 }
@@ -519,6 +576,8 @@ $('btnStats').onclick=()=>{
   MISSIONS.forEach((m,i)=>{const s=stats[i];h+='<tr><td>'+m.tab+'</td><td>'+s.runs+'</td><td>'+s.fails+'</td><td>'+s.ok+'</td><td>'+(s.best==null?'–':s.best+' ก้อน')+'</td></tr>';});
   $('statsTable').innerHTML=h;$('statsBox').classList.remove('hidden');
 };
+$('btnSnd').textContent=muted?'🔇':'🔊';
+$('btnSnd').onclick=()=>{muted=!muted;try{localStorage.setItem('kr-muted',muted);}catch(e){}$('btnSnd').textContent=muted?'🔇':'🔊';if(!muted)sfx.add();};
 $('statsClose').onclick=()=>$('statsBox').classList.add('hidden');
 let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{layout();},150);});
 

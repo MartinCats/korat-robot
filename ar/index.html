@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>AR หุ่นยนต์ส่งของเมืองโคราช</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A44; --paper:#FBF7EF; --accent:#A84F12;
+  --f:#8CCB9B; --r:#8EC3EA; --l:#F4D35E; --rep:#F2A65A; --bad:#C62828;
+  --glass:rgba(251,247,239,.86);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#20283a;color:var(--ink);font-family:'Sarabun',system-ui,sans-serif;overscroll-behavior:none}
+button{font-family:'Kanit',sans-serif;color:var(--ink)}
+#cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;background:radial-gradient(circle at 50% 30%,#4b5d80,#1c2233)}
+#cam.mirror{transform:scaleX(-1)}
+#shade{position:fixed;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(20,26,40,.35),rgba(20,26,40,0) 22%,rgba(20,26,40,0) 60%,rgba(20,26,40,.45));pointer-events:none}
+#app{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:8px;padding:10px 14px 0;flex-wrap:wrap}
+.brand{font-family:'Kanit';font-weight:600;font-size:20px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.5);margin-right:auto;white-space:nowrap}
+.pill{border:none;background:var(--glass);border-radius:999px;padding:8px 14px;font-size:15px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.pill.on{background:var(--ink);color:#fff}
+.tabs{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.mission{margin:8px 14px 0;background:var(--glass);border-radius:16px;padding:8px 14px;max-width:720px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.mission b{font-family:'Kanit';font-weight:600;font-size:17px;margin-right:6px}
+.mission span{font-size:15px}
+
+/* stage with floating board */
+#stage{flex:1;position:relative;pointer-events:none;perspective:1100px;perspective-origin:50% 20%;min-height:0;display:flex;align-items:center;justify-content:center}
+#floater{transform-style:preserve-3d;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+#plane{position:relative;transform-style:preserve-3d;transform:rotateX(52deg) rotateZ(-8deg);border-radius:18px}
+.grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:4px;padding:6px;border-radius:18px;background:rgba(217,207,185,.92);box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+.tile{border-radius:10px;background:rgba(243,235,220,.95);position:relative}
+.tile.road{background:rgba(237,227,207,.95)}
+.tile.start{box-shadow:inset 0 0 0 4px #8CCB9B}
+.tile.goal{box-shadow:inset 0 0 0 5px #E8B400;animation:goal 1.6s ease-in-out infinite alternate}
+@keyframes goal{from{background:#FFF6C9}to{background:#FFE07A}}
+.tile.block{background:repeating-linear-gradient(45deg,#f6d2c4 0 10px,#fbe6dd 10px 20px)}
+.tile.trail{background:rgba(140,203,155,.55)}
+.tile .cell{position:absolute;left:5px;bottom:3px;font-family:'Kanit';font-size:11px;color:#8a8270}
+.edge{position:absolute;left:0;width:100%;height:16px;top:100%;transform-origin:top;transform:rotateX(-90deg);background:linear-gradient(#b9ab8c,#8f8165);border-radius:0 0 12px 12px}
+.shadow{position:absolute;left:4%;top:4%;width:92%;height:92%;transform:translateZ(-60px);background:rgba(0,0,0,.28);filter:blur(18px);border-radius:30px}
+/* billboards (stand up toward viewer) */
+.bb{position:absolute;left:0;top:0;transform-style:preserve-3d;pointer-events:none}
+.bb .card{position:absolute;transform-origin:50% 100%;transform:rotateZ(8deg) rotateX(-52deg);text-align:center;white-space:nowrap}
+.bb .ic{line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.3))}
+.bb .nm{font-family:'Kanit';font-weight:600;font-size:12px;background:rgba(255,255,255,.88);border-radius:8px;padding:1px 6px;display:inline-block;margin-top:2px}
+/* 3D robot */
+#bot{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform .55s ease-in-out}
+#bot .f{position:absolute;backface-visibility:visible;border:2px solid #1E2A44;border-radius:4px}
+#bot .body{background:#4C7BD9}
+#bot .body.top{background:#6E97E8}
+#bot .head{background:#EAF2FF}
+#bot .head.top{background:#ffffff}
+#bot .box{background:#D9A066}
+#bot .face{display:flex;align-items:center;justify-content:center;gap:22%}
+#bot .eye{width:16%;height:30%;background:#1E2A44;border-radius:50%}
+#bot .ring{position:absolute;border-radius:50%;border:4px solid rgba(168,79,18,.85);border-top-color:transparent;border-left-color:transparent}
+#bot .nose{position:absolute;width:0;height:0}
+#bot.hop{animation:none}
+#botz{transform-style:preserve-3d}
+#botz.hop{animation:hop .45s ease-in-out 3}
+@keyframes hop{50%{transform:translateZ(26px)}}
+#botz.shake{animation:shake .5s ease-in-out}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+/* bottom panel */
+.panel{margin:0 12px 12px;background:var(--glass);border-radius:22px;padding:10px 12px 12px;box-shadow:0 6px 24px rgba(0,0,0,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.msg{font-size:16px;line-height:1.4;min-height:24px;margin:0 4px 8px}
+.msg.ok{color:#1f6b2a}.msg.err{color:#a3221a}
+.msg b{font-family:'Kanit';font-weight:600}
+.rail{min-height:76px;border:3px dashed #c9bfa8;border-radius:16px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(255,255,255,.55);transition:background .2s,border-color .2s}
+.rail.hot{background:rgba(255,246,201,.9);border-color:#E8B400}
+.rail .empty{color:#8a90a0;font-size:15px;padding:0 6px}
+.row{display:flex;gap:10px;margin-top:10px;align-items:stretch;flex-wrap:wrap}
+.tray{display:flex;gap:10px;flex:1;min-width:300px}
+.blk{width:64px;height:64px;border-radius:16px;border:3px solid transparent;display:flex;align-items:center;justify-content:center;position:relative;touch-action:none;cursor:grab;box-shadow:0 3px 0 rgba(30,42,68,.25);font-family:'Kanit';font-size:13px;flex-direction:column}
+.blk svg{width:34px;height:34px;pointer-events:none}
+.blk.f{background:var(--f)}.blk.r{background:var(--r)}.blk.l{background:var(--l)}.blk.rp{background:var(--rep)}
+.tray .blk{width:auto;flex:1;height:72px;gap:2px}
+.tray .blk span{pointer-events:none}
+.blk .n{position:absolute;top:-8px;left:-6px;background:var(--ink);color:#fff;border-radius:999px;font-size:11px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none}
+.blk.now{border-color:var(--ink);transform:translateY(-5px)}
+.blk.bad{border-color:var(--bad);animation:bad .5s ease-in-out 2}
+@keyframes bad{50%{transform:scale(1.1)}}
+.rep{display:flex;align-items:center;gap:6px;border:3px dashed var(--rep);border-radius:16px;padding:4px 6px;background:#FFF3E6;position:relative;touch-action:none}
+.rep .rl{font-family:'Kanit';background:var(--rep);border-radius:12px;padding:0 10px;height:52px;display:flex;align-items:center;font-size:15px;white-space:nowrap;cursor:pointer}
+.rep .hole{width:60px;height:60px;border-radius:14px;border:3px dashed #e0a56b;display:flex;align-items:center;justify-content:center;font-size:12px;color:#b5651d;text-align:center;line-height:1.1}
+.rep .hole.hot{background:#ffe2c2}
+.rep.now{box-shadow:0 0 0 3px var(--ink)}
+.rep>.n{position:absolute;top:-8px;left:-6px;background:var(--ink);color:#fff;border-radius:999px;font-size:11px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.ctrl{display:flex;gap:8px}
+.cbtn{border-radius:16px;border:2px solid var(--ink);background:#fff;font-size:17px;padding:0 16px;cursor:pointer;min-height:72px}
+.cbtn.run{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;padding:0 22px;font-size:19px}
+.cbtn:disabled,.pill:disabled{opacity:.45}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-50%) scale(1.12);opacity:.92;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.trash{position:fixed;z-index:40;left:50%;top:14px;transform:translateX(-50%);background:#fff;border-radius:999px;padding:8px 16px;font-family:'Kanit';box-shadow:0 4px 14px rgba(0,0,0,.3);display:none}
+.trash.show{display:block}
+
+/* hand cursor */
+#hand{position:fixed;z-index:60;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:4px solid #fff;box-shadow:0 0 0 3px rgba(30,42,68,.6),0 0 18px rgba(255,255,255,.6);pointer-events:none;display:none;transition:width .12s,height .12s,margin .12s,background .12s}
+#hand.pinch{width:30px;height:30px;margin:-15px 0 0 -15px;background:rgba(242,166,90,.85)}
+#hand.show{display:block}
+.handinfo{position:fixed;z-index:45;right:14px;bottom:14px;background:var(--glass);border-radius:14px;padding:8px 12px;font-size:14px;display:none;max-width:280px}
+.handinfo.show{display:block}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(20,26,40,.55)}
+.sheet{background:var(--paper);border-radius:24px;padding:24px 26px;max-width:560px;width:calc(100% - 40px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.sheet h2{font-family:'Kanit';margin:0 0 6px;font-size:26px}
+.sheet p{font-size:17px;line-height:1.5;margin:6px 0}
+.sheet .big{width:100%;margin-top:14px;font-size:20px;padding:14px;border:none;border-radius:16px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.sheet .sub{width:100%;margin-top:8px;font-size:16px;padding:10px;border:2px solid var(--ink);border-radius:14px;background:#fff;cursor:pointer}
+table.stats{width:100%;border-collapse:collapse;font-size:16px;margin-top:8px}
+table.stats td,table.stats th{border-bottom:1px solid #e4dccb;padding:6px 4px;text-align:left}
+table.stats th{font-family:'Kanit';font-weight:600}
+.hidden{display:none!important}
+@media (prefers-reduced-motion: reduce){#floater{animation:none}.tile.goal{animation:none}}
+</style>
+</head>
+<body>
+<video id="cam" playsinline muted autoplay></video>
+<div id="shade"></div>
+
+<div id="app">
+  <div class="top">
+    <div class="brand">🤖 AR หุ่นยนต์ส่งของเมืองโคราช</div>
+    <button class="pill" id="btnHand">✋ หยิบด้วยมือ</button>
+    <button class="pill" id="btnCam">🔄 สลับกล้อง</button>
+    <button class="pill" id="btnStats">📊 ผลการเล่น</button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="mission" id="mission"></div>
+
+  <div id="stage"><div id="floater"><div id="plane"></div></div></div>
+
+  <div class="panel">
+    <div class="msg" id="msg"></div>
+    <div class="rail" id="rail"></div>
+    <div class="row">
+      <div class="tray" id="tray">
+        <div class="blk f" data-t="f"><svg viewBox="0 0 24 24"><path d="M12 20 V5 M6 11 L12 5 L18 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>เดินหน้า</span></div>
+        <div class="blk r" data-t="r"><svg viewBox="0 0 24 24"><path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>หันขวา</span></div>
+        <div class="blk l" data-t="l"><svg viewBox="0 0 24 24"><path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>หันซ้าย</span></div>
+        <div class="blk rp" data-t="rep"><span style="font-size:26px;line-height:34px">🔁</span><span>ทำซ้ำ</span></div>
+      </div>
+      <div class="ctrl">
+        <button class="cbtn run" id="run">▶ ทำงาน</button>
+        <button class="cbtn" id="undo">⌫</button>
+        <button class="cbtn" id="clear">ล้าง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="trash" id="trash">ปล่อยนอกรางเพื่อลบบล็อก 🗑️</div>
+<div id="hand"></div>
+<div class="handinfo" id="handinfo"></div>
+
+<div class="overlay" id="start">
+  <div class="sheet">
+    <h2>🤖 AR หุ่นยนต์ส่งของเมืองโคราช</h2>
+    <p>เปิดกล้องแล้วแผนที่โคราชจะลอยอยู่ในห้อง <b>หยิบบล็อกคำสั่ง</b> ใส่ลงราง แล้วกด ▶ ให้หุ่นยนต์ไปส่งของ</p>
+    <p style="font-size:15px;color:#5b6478">ลากบล็อกด้วยนิ้ว หรือกด “✋ หยิบด้วยมือ” เพื่อจีบนิ้วหยิบบล็อกกลางอากาศ · วิทยาการคำนวณ ม.1 (ว 4.2 ม.1/1)</p>
+    <button class="big" id="go">📷 เปิดกล้องและเริ่มเล่น</button>
+    <button class="sub" id="nocam">เล่นแบบไม่เปิดกล้อง</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="statsBox">
+  <div class="sheet">
+    <h2>📊 ผลการเล่น (สำหรับครู)</h2>
+    <p style="font-size:15px;color:#5b6478">นับตั้งแต่เปิดหน้านี้ ใช้ดูว่ากลุ่มติดภารกิจไหนและต้องแก้คำสั่งกี่รอบ</p>
+    <table class="stats" id="statsTable"></table>
+    <button class="sub" id="statsClose">ปิด</button>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const COLS='ABCDE';
+const PLACES={
+  '0,0':{ic:'⛰️',nm:'เขาใหญ่'},
+  '2,0':{ic:'🌼',nm:'อนุสาวรีย์ท้าวสุรนารี'},
+  '4,0':{ic:'🛕',nm:'ปราสาทหินพิมาย'},
+  '2,2':{ic:'🏯',nm:'ประตูชุมพล'},
+  '4,2':{ic:'🏺',nm:'ด่านเกวียน'},
+  '0,4':{ic:'🍜',nm:'ร้านผัดหมี่'},
+  '4,4':{ic:'🧵',nm:'ผ้าไหมปักธงชัย'}
+};
+const ARROW={
+  f:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/>',
+  r:'<path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11"/>',
+  l:'<path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11"/>'
+};
+const NAME={f:'เดินหน้า',r:'หันขวา',l:'หันซ้าย'};
+const DIR=['เหนือ','ตะวันออก','ใต้','ตะวันตก'];
+const DX=[0,1,0,-1], DY=[-1,0,1,0];
+const F={t:'f'},R={t:'r'},L={t:'l'};
+const MISSIONS=[
+  {tab:'ภารกิจ 1',title:'ส่งผัดหมี่ไปประตูชุมพล',text:'เริ่มที่ร้านผัดหมี่ (A5) หุ่นยนต์หันไปทิศเหนือ พาไปส่งของที่ประตูชุมพล (C3)',goal:[2,2],block:[]},
+  {tab:'ภารกิจ 2',title:'ถนนปิด!',text:'ช่อง A3 ปิดซ่อมถนน 🚧 หาทางใหม่ไปอนุสาวรีย์ท้าวสุรนารี (C1)',goal:[2,0],block:[[0,2]]},
+  {tab:'ภารกิจ 3',title:'ใช้บล็อกให้น้อย',text:'ไปปราสาทหินพิมาย (E1) ใช้บล็อกไม่เกิน 6 ก้อน 💡 ลองใช้ 🔁 ทำซ้ำ',goal:[4,0],block:[],limit:6},
+  {tab:'ซ่อมคำสั่ง',title:'นักสืบหาบั๊ก',text:'โปรแกรมนี้จะไปประตูชุมพล (C3) แต่มีบล็อกผิด 1 ก้อน กด ▶ ดูก่อน แล้วแตะบล็อกที่ผิดเพื่อแก้',goal:[2,2],block:[],preset:[F,F,L,F,F]},
+  {tab:'เล่นอิสระ',title:'โหมดอิสระ',text:'ตั้งโจทย์ให้เพื่อน แล้วพาหุ่นยนต์ไปที่ไหนก็ได้ในโคราช',goal:null,block:[]}
+];
+const START={x:0,y:4,h:0};
+const TILT=52;
+
+let mi=0, prog=[], running=false, pos={...START}, rot=0, tile=100, S=500;
+const stats=MISSIONS.map(()=>({runs:0,fails:0,ok:0,best:null}));
+const clone=a=>JSON.parse(JSON.stringify(a));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const plane=$('plane'), railEl=$('rail'), msg=$('msg');
+
+/* ---------- camera ---------- */
+let facing='environment', stream=null;
+async function startCam(){
+  try{
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:720}},audio:false});
+    const v=$('cam');v.srcObject=stream;v.classList.toggle('mirror',facing==='user');
+    await v.play().catch(()=>{});
+    return true;
+  }catch(e){setMsg('เปิดกล้องไม่ได้ ('+(e.name||'error')+') ยังเล่นต่อได้ตามปกติ','err');return false;}
+}
+$('go').onclick=async()=>{$('start').classList.add('hidden');await startCam();};
+$('nocam').onclick=()=>{$('start').classList.add('hidden');};
+$('btnCam').onclick=async()=>{facing=facing==='environment'?'user':'environment';await startCam();};
+
+/* ---------- board (CSS 3D) ---------- */
+function face(w,h,tf,cls,inner){return '<div class="f '+cls+'" style="width:'+w+'px;height:'+h+'px;left:'+(-w/2)+'px;top:'+(-h/2)+'px;transform:'+tf+'">'+(inner||'')+'</div>';}
+function box(w,d,h,z0,cls,frontInner){
+  return face(w,d,'translateZ('+(z0+h)+'px)',cls+' top')+
+    face(w,h,'translate3d(0,'+(-d/2)+'px,'+(z0+h/2)+'px) rotateX(-90deg)',cls+(frontInner?' face':''),frontInner)+
+    face(w,h,'translate3d(0,'+(d/2)+'px,'+(z0+h/2)+'px) rotateX(-90deg)',cls)+
+    face(h,d,'translate3d('+(-w/2)+'px,0,'+(z0+h/2)+'px) rotateY(90deg)',cls)+
+    face(h,d,'translate3d('+(w/2)+'px,0,'+(z0+h/2)+'px) rotateY(90deg)',cls);
+}
+function robotHTML(t){
+  const bw=t*.5,bd=t*.4,bh=t*.36, hw=t*.4,hd=t*.32,hh=t*.26, kw=t*.3,kd=t*.12,kh=t*.24;
+  const eyes='<div class="eye"></div><div class="eye"></div>';
+  return '<div id="botz">'+
+    box(bw,bd,bh,4,'body')+
+    box(hw,hd,hh,4+bh,'head',eyes)+
+    '<div style="position:absolute;left:0;top:0;transform-style:preserve-3d;transform:translate3d(0,'+(bd/2+kd/2)+'px,0)">'+box(kw,kd,kh,10,'box')+'</div>'+
+    '<div style="position:absolute;left:0;top:0;transform-style:preserve-3d;transform:translate3d(0,'+(-bd/2-t*.12)+'px,2px)"><div style="position:absolute;width:0;height:0;left:'+(-t*.1)+'px;top:'+(-t*.08)+'px;border-left:'+(t*.1)+'px solid transparent;border-right:'+(t*.1)+'px solid transparent;border-bottom:'+(t*.13)+'px solid #A84F12"></div></div>'+
+  '</div>';
+}
+function billboard(x,y,html,w,h){
+  return '<div class="bb" style="transform:translate3d('+x+'px,'+y+'px,1px)"><div class="card" style="width:'+w+'px;height:'+h+'px;left:'+(-w/2)+'px;top:'+(-h)+'px">'+html+'</div></div>';
+}
+function layout(){
+  const stage=$('stage'),fl=$('floater');
+  fl.style.marginTop='0px';fl.style.marginLeft='0px';
+  const st=stage.getBoundingClientRect();
+  S=Math.max(200,Math.min(st.width*0.6, st.height*1.4, 640));
+  tile=(S-12)/5;buildBoard();
+  // measure the projected (3D) board and fit it inside the stage
+  for(let i=0;i<4;i++){
+    const g=plane.querySelector('.grid').getBoundingClientRect();
+    const top=g.top-tile*.75, h=g.bottom-top+18, w=g.width+tile*.5;
+    const k=Math.min((st.height-8)/h,(st.width*0.94)/w,1.25);
+    if(Math.abs(k-1)<0.02)break;
+    S=Math.max(180,Math.min(S*k,760));tile=(S-12)/5;buildBoard();
+  }
+  const g=plane.querySelector('.grid').getBoundingClientRect();
+  const top=g.top-tile*.75, bottom=g.bottom+18;
+  fl.style.marginTop=((st.top+st.height/2)-(top+bottom)/2)*2+'px';
+  fl.style.marginLeft=((st.left+st.width/2)-(g.left+g.right)/2)*2+'px';
+}
+function center(c){return 6+tile*c+tile/2-2*(0)}
+function buildBoard(){
+  const m=MISSIONS[mi];
+  plane.style.width=S+'px';plane.style.height=S+'px';
+  let g='<div class="shadow"></div><div class="grid">';
+  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
+    const blocked=m.block.some(b=>b[0]===x&&b[1]===y);
+    const p=PLACES[x+','+y];
+    let cls='tile';
+    if(blocked)cls+=' block';else if(!p)cls+=' road';
+    if(x===START.x&&y===START.y)cls+=' start';
+    if(m.goal&&m.goal[0]===x&&m.goal[1]===y)cls+=' goal';
+    g+='<div class="'+cls+'" data-c="'+x+','+y+'"><span class="cell">'+COLS[x]+(y+1)+'</span></div>';
+  }
+  g+='</div><div class="edge"></div>';
+  const ic=Math.round(tile*.42);
+  for(const k in PLACES){
+    const [x,y]=k.split(',').map(Number);
+    if(m.block.some(b=>b[0]===x&&b[1]===y))continue;
+    g+=billboard(cx(x),cy(y)-tile*.08,'<div class="ic" style="font-size:'+ic+'px">'+PLACES[k].ic+'</div><div class="nm">'+PLACES[k].nm+'</div>',tile*1.3,ic+22);
+  }
+  m.block.forEach(b=>{g+=billboard(cx(b[0]),cy(b[1]),'<div class="ic" style="font-size:'+ic+'px">🚧</div><div class="nm">ถนนปิด</div>',tile*1.1,ic+22);});
+  g+='<div id="bot">'+robotHTML(tile)+'</div>';
+  plane.innerHTML=g;
+  placeBot(true);
+}
+function cx(x){return 6+(x+.5)*((S-12)/5);}
+function cy(y){return 6+(y+.5)*((S-12)/5);}
+function placeBot(instant){
+  const b=$('bot');if(!b)return;
+  if(instant)b.style.transition='none';
+  b.style.transform='translate3d('+cx(pos.x)+'px,'+(cy(pos.y)+tile*.06)+'px,0) rotateZ('+rot+'deg)';
+  if(instant){b.offsetWidth;b.style.transition='';}
+}
+function resetBot(){
+  pos={...START};rot=0;
+  const z=$('botz');if(z)z.className='';
+  plane.querySelectorAll('.trail').forEach(t=>t.classList.remove('trail'));
+  placeBot(true);
+}
+function trail(x,y){const t=plane.querySelector('[data-c="'+x+','+y+'"]');if(t&&!t.classList.contains('goal'))t.classList.add('trail');}
+
+/* ---------- program rail ---------- */
+function chipHTML(t,num){return '<svg viewBox="0 0 24 24"><g fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'+ARROW[t]+'</g></svg>'+(num?'<span class="n">'+num+'</span>':'');}
+function countCards(){let c=0;prog.forEach(it=>{c+=it.t==='rep'?(it.body?2:1):1;});return c;}
+function render(){
+  railEl.innerHTML='';
+  if(!prog.length)railEl.innerHTML='<span class="empty">ลากบล็อกคำสั่งมาวางที่นี่ (หรือแตะบล็อกด้านล่าง)</span>';
+  prog.forEach((it,i)=>{
+    if(it.t==='rep'){
+      const g=document.createElement('div');g.className='rep';g.dataset.path=String(i);g.dataset.idx=i;
+      g.innerHTML='<div class="rl" data-act="repn">🔁 ทำซ้ำ '+it.n+' ครั้ง</div>'+
+        (it.body?'<div class="blk '+it.body.t+'" data-path="'+i+'.0" data-idx="'+i+'" data-inner="1">'+chipHTML(it.body.t)+'</div>':'<div class="hole" data-hole="'+i+'">วาง<br>บล็อก</div>')+
+        '<span class="n">'+(i+1)+'</span>';
+      railEl.appendChild(g);
+    }else{
+      const d=document.createElement('div');d.className='blk '+it.t;d.dataset.path=String(i);d.dataset.idx=i;
+      d.innerHTML=chipHTML(it.t,i+1);railEl.appendChild(d);
+    }
+  });
+}
+function edited(){render();resetBot();setMsg('');}
+function setMsg(h,k){msg.className='msg'+(k?' '+k:'');msg.innerHTML=h||defaultMsg();}
+function defaultMsg(){return MISSIONS[mi].goal?'หุ่นยนต์อยู่ที่ <b>A5</b> หันไปทิศ<b>เหนือ</b> (ด้านไกลของแผนที่)':'วางบล็อกอะไรก็ได้ แล้วกด ▶';}
+
+function addBlock(t,at){
+  const last=prog[prog.length-1];
+  if(t==='rep'){
+    if(last&&last.t==='rep'&&!last.body){setMsg('ใส่บล็อกลงในช่อง <b>ทำซ้ำ</b> ก่อนนะ','err');return;}
+    const it={t:'rep',n:2,body:null};
+    if(at==null)prog.push(it);else prog.splice(at,0,it);
+  }else if(at==null&&last&&last.t==='rep'&&!last.body){last.body={t};}
+  else{ if(at==null)prog.push({t});else prog.splice(at,0,{t}); }
+  edited();
+}
+
+/* ---------- unified drag (touch + hand) ---------- */
+let drag=null; // {t, from:'tray'|'rail', idx, inner, ghost, sx, sy, moved, el}
+function pick(el,x,y){
+  if(running||!el)return false;
+  const tb=el.closest('#tray .blk');
+  if(tb){drag={t:tb.dataset.t,from:'tray',el:tb,sx:x,sy:y,moved:false};return true;}
+  const rb=el.closest('#rail .blk');
+  if(rb){const idx=+rb.dataset.idx;drag={t:rb.classList.contains('f')?'f':rb.classList.contains('r')?'r':'l',from:'rail',idx,inner:!!rb.dataset.inner,el:rb,sx:x,sy:y,moved:false};return true;}
+  return false;
+}
+function makeGhost(){
+  const g=document.createElement('div');
+  g.className='blk ghost '+(drag.t==='rep'?'rp':drag.t);
+  g.innerHTML=drag.t==='rep'?'<span style="font-size:26px">🔁</span>':chipHTML(drag.t);
+  document.body.appendChild(g);drag.ghost=g;
+  if(drag.from==='rail'){drag.el.style.opacity='.3';$('trash').classList.add('show');}
+}
+function moveTo(x,y){
+  if(!drag)return;
+  if(!drag.moved&&Math.hypot(x-drag.sx,y-drag.sy)>10){drag.moved=true;makeGhost();}
+  if(!drag.moved)return;
+  drag.ghost.style.left=x+'px';drag.ghost.style.top=y+'px';
+  const over=hitAt(x,y);
+  railEl.classList.toggle('hot',!!over.rail);
+  railEl.querySelectorAll('.hole').forEach(h=>h.classList.toggle('hot',over.hole===h));
+}
+function hitAt(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(!el)return{};
+  const hole=el.closest('.hole');
+  const rail=el.closest('#rail');
+  const chip=el.closest('#rail [data-idx]');
+  return{hole,rail,chip};
+}
+function drop(x,y){
+  if(!drag)return;
+  const d=drag;drag=null;
+  railEl.classList.remove('hot');$('trash').classList.remove('show');
+  if(d.ghost)d.ghost.remove();
+  if(d.el)d.el.style.opacity='';
+  if(!d.moved){ // tap
+    if(d.from==='tray')addBlock(d.t);
+    else{ // cycle type
+      const it=d.inner?prog[d.idx].body:prog[d.idx];
+      it.t={f:'r',r:'l',l:'f'}[it.t];edited();
+    }
+    return;
+  }
+  const over=hitAt(x,y);
+  if(d.from==='rail'){
+    const moving=d.inner?prog[d.idx].body:prog[d.idx];
+    if(!over.rail){ // remove
+      if(d.inner)prog[d.idx].body=null;else prog.splice(d.idx,1);
+      edited();return;
+    }
+    // reorder within rail
+    if(d.inner)prog[d.idx].body=null;else prog.splice(d.idx,1);
+    if(over.hole){const hi=+over.hole.dataset.hole;const target=prog[hi>d.idx&&!d.inner?hi-1:hi];if(target&&target.t==='rep'&&!target.body&&moving.t!=='rep'){target.body={t:moving.t};edited();return;}}
+    let at=prog.length;
+    if(over.chip){at=+over.chip.dataset.idx;if(!d.inner&&at>d.idx)at--;}
+    prog.splice(at,0,moving);edited();return;
+  }
+  // from tray
+  if(over.hole&&d.t!=='rep'){const it=prog[+over.hole.dataset.hole];if(it){it.body={t:d.t};edited();return;}}
+  if(over.rail){addBlock(d.t,over.chip?+over.chip.dataset.idx:null);return;}
+  setMsg('ปล่อยบล็อกลงใน<b>รางโปรแกรม</b>นะ','err');
+}
+document.addEventListener('pointerdown',e=>{
+  if(handOn&&e.pointerType!=='mouse'&&e.isPrimary===false)return;
+  if(pick(e.target,e.clientX,e.clientY)){e.preventDefault();}
+},{passive:false});
+document.addEventListener('pointermove',e=>{if(drag&&!drag.hand){moveTo(e.clientX,e.clientY);}});
+document.addEventListener('pointerup',e=>{if(drag&&!drag.hand)drop(e.clientX,e.clientY);});
+document.addEventListener('pointercancel',()=>{if(drag&&!drag.hand){if(drag.ghost)drag.ghost.remove();if(drag.el)drag.el.style.opacity='';drag=null;railEl.classList.remove('hot');$('trash').classList.remove('show');}});
+railEl.addEventListener('click',e=>{
+  const rl=e.target.closest('[data-act="repn"]');
+  if(rl&&!running){const i=+rl.parentElement.dataset.idx;prog[i].n=prog[i].n>=5?2:prog[i].n+1;edited();}
+});
+
+/* ---------- run ---------- */
+function mark(path){
+  railEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
+  if(path==null)return;
+  const el=railEl.querySelector('[data-path="'+path+'"]');if(el)el.classList.add('now');
+  if(path.includes('.')){const g=railEl.querySelector('.rep[data-path="'+path.split('.')[0]+'"]');if(g)g.classList.add('now');}
+}
+function cell(x,y){return COLS[x]+(y+1);}
+function placeName(x,y){const p=PLACES[x+','+y];return cell(x,y)+(p?' ('+p.nm+')':'');}
+async function step(it,path,num){
+  mark(path);
+  if(it.t==='r'){rot+=90;pos.h=(pos.h+1)%4;placeBot();await sleep(650);return true;}
+  if(it.t==='l'){rot-=90;pos.h=(pos.h+3)%4;placeBot();await sleep(650);return true;}
+  const nx=pos.x+DX[pos.h],ny=pos.y+DY[pos.h];
+  const out=nx<0||ny<0||nx>4||ny>4;
+  const blk=!out&&MISSIONS[mi].block.some(b=>b[0]===nx&&b[1]===ny);
+  if(out||blk){
+    const z=$('botz');z.classList.add('shake');await sleep(550);z.classList.remove('shake');
+    railEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
+    const el=railEl.querySelector('[data-path="'+path+'"]');if(el)el.classList.add('bad');
+    setMsg('💥 <b>บล็อกที่ '+num+' ('+NAME[it.t]+')</b> ทำให้หุ่นยนต์'+(out?'ออกนอกแผนที่':'ชนถนนปิด')+' (อยู่ที่ '+cell(pos.x,pos.y)+' หันไปทิศ'+DIR[pos.h]+') ลองไล่ดูบล็อกตั้งแต่ก้อนแรก','err');
+    return false;
+  }
+  trail(pos.x,pos.y);pos.x=nx;pos.y=ny;placeBot();await sleep(650);return true;
+}
+async function run(){
+  if(running)return;
+  if(!prog.length){setMsg('ยังไม่มีบล็อกเลย ลากบล็อกมาวางในรางก่อนนะ','err');return;}
+  if(prog.some(it=>it.t==='rep'&&!it.body)){setMsg('ช่อง <b>ทำซ้ำ</b> ยังว่างอยู่ ใส่บล็อกลงไปก่อนนะ','err');return;}
+  railEl.querySelectorAll('.bad').forEach(e=>e.classList.remove('bad'));
+  resetBot();await sleep(120);
+  running=true;setBusy(true);setMsg('🤖 กำลังทำงานตามคำสั่ง…');
+  stats[mi].runs++;
+  let ok=true;
+  for(let i=0;i<prog.length&&ok;i++){
+    const it=prog[i];
+    if(it.t==='rep'){
+      for(let k=0;k<it.n&&ok;k++){
+        const lb=railEl.querySelector('.rep[data-path="'+i+'"] .rl');if(lb)lb.textContent='🔁 รอบที่ '+(k+1)+'/'+it.n;
+        ok=await step(it.body,i+'.0',(i+1)+' รอบที่ '+(k+1));
+      }
+      const lb=railEl.querySelector('.rep[data-path="'+i+'"] .rl');if(lb)lb.textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';
+    }else ok=await step(it,String(i),i+1);
+  }
+  mark(null);running=false;setBusy(false);
+  if(!ok){stats[mi].fails++;return;}
+  finish();
+}
+function finish(){
+  const m=MISSIONS[mi];
+  if(!m.goal){setMsg('✅ หุ่นยนต์หยุดที่ <b>'+placeName(pos.x,pos.y)+'</b> หันไปทิศ'+DIR[pos.h],'ok');return;}
+  if(pos.x===m.goal[0]&&pos.y===m.goal[1]){
+    const n=countCards();$('botz').classList.add('hop');
+    if(m.limit&&n>m.limit){stats[mi].fails++;setMsg('📦 ถึงแล้ว! แต่ใช้ '+n+' ก้อน เกิน '+m.limit+' ก้อน ลองใช้ 🔁 ทำซ้ำ แทนบล็อกที่ซ้ำกัน','ok');return;}
+    stats[mi].ok++;stats[mi].best=stats[mi].best==null?n:Math.min(stats[mi].best,n);
+    setMsg('⭐⭐⭐ <b>ส่งของสำเร็จ!</b> ถึง '+placeName(m.goal[0],m.goal[1])+' ใช้บล็อก '+n+' ก้อน','ok');
+  }else{
+    stats[mi].fails++;
+    setMsg('🤔 หุ่นยนต์หยุดที่ <b>'+placeName(pos.x,pos.y)+'</b> ยังไม่ถึง '+placeName(m.goal[0],m.goal[1])+' ลองดูว่าควรหันไปทางไหน','err');
+  }
+}
+function setBusy(b){document.querySelectorAll('.cbtn,.tabs .pill').forEach(e=>e.disabled=b);}
+
+/* ---------- missions / UI ---------- */
+function loadMission(i){
+  if(running)return;
+  mi=i;const m=MISSIONS[i];
+  document.querySelectorAll('.tabs .pill').forEach((b,k)=>b.classList.toggle('on',k===i));
+  $('mission').innerHTML='<b>'+m.title+'</b><span>'+m.text+'</span>';
+  prog=m.preset?clone(m.preset):[];
+  buildBoard();render();resetBot();setMsg('');
+}
+MISSIONS.forEach((m,i)=>{const b=document.createElement('button');b.className='pill';b.textContent=m.tab;b.onclick=()=>loadMission(i);$('tabs').appendChild(b);});
+$('run').onclick=run;
+$('undo').onclick=()=>{if(running||!prog.length)return;const last=prog[prog.length-1];if(last.t==='rep'&&last.body)last.body=null;else prog.pop();edited();};
+$('clear').onclick=()=>{if(running)return;prog=[];edited();};
+$('btnStats').onclick=()=>{
+  let h='<tr><th>ภารกิจ</th><th>กด ▶</th><th>ผิด</th><th>สำเร็จ</th><th>ใช้น้อยสุด</th></tr>';
+  MISSIONS.forEach((m,i)=>{const s=stats[i];h+='<tr><td>'+m.tab+'</td><td>'+s.runs+'</td><td>'+s.fails+'</td><td>'+s.ok+'</td><td>'+(s.best==null?'–':s.best+' ก้อน')+'</td></tr>';});
+  $('statsTable').innerHTML=h;$('statsBox').classList.remove('hidden');
+};
+$('statsClose').onclick=()=>$('statsBox').classList.add('hidden');
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{layout();},150);});
+
+/* ---------- hand pinch mode (MediaPipe, loaded on demand) ---------- */
+let handOn=false, landmarker=null, handLoop=null, hx=0, hy=0, pinching=false, pinchEl=null, lastSeen=0;
+const handEl=$('hand'), info=$('handinfo');
+function handMsg(t){info.innerHTML=t;info.classList.add('show');}
+async function loadLandmarker(){
+  const V='0.10.14';
+  const mod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+V+'/vision_bundle.mjs');
+  const fs=await mod.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+V+'/wasm');
+  const opts=d=>({baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:d},runningMode:'VIDEO',numHands:1,minHandDetectionConfidence:.5,minTrackingConfidence:.5});
+  try{return await mod.HandLandmarker.createFromOptions(fs,opts('GPU'));}
+  catch(e){return await mod.HandLandmarker.createFromOptions(fs,opts('CPU'));}
+}
+// map normalized video coords -> screen, accounting for object-fit:cover and mirroring
+function toScreen(nx,ny){
+  const v=$('cam');const vw=v.videoWidth||1280,vh=v.videoHeight||720;
+  const W=innerWidth,H=innerHeight;const s=Math.max(W/vw,H/vh);
+  const dw=vw*s,dh=vh*s;let x=nx*dw-(dw-W)/2,y=ny*dh-(dh-H)/2;
+  if(facing==='user')x=W-x;
+  return[x,y];
+}
+// shared by real tracking and the test hook
+function feedHand(x,y,pinch){
+  lastSeen=performance.now();
+  hx=hx?hx+(x-hx)*.55:x;hy=hy?hy+(y-hy)*.55:y;
+  handEl.style.left=hx+'px';handEl.style.top=hy+'px';handEl.classList.add('show');
+  if(pinch&&!pinching){
+    pinching=true;handEl.classList.add('pinch');
+    const el=document.elementFromPoint(hx,hy);
+    if(pick(el,hx,hy)){drag.hand=true;}else pinchEl=el&&el.closest('button,.pill,.rl');
+  }else if(!pinch&&pinching){
+    pinching=false;handEl.classList.remove('pinch');
+    if(drag&&drag.hand)drop(hx,hy);
+    else if(pinchEl){const el=document.elementFromPoint(hx,hy);if(el&&el.closest('button,.pill,.rl')===pinchEl&&!pinchEl.disabled)pinchEl.click();}
+    pinchEl=null;
+  }
+  if(drag&&drag.hand)moveTo(hx,hy);
+}
+function lostHand(){
+  handEl.classList.remove('show');
+  if(pinching){pinching=false;handEl.classList.remove('pinch');if(drag&&drag.hand)drop(hx,hy);pinchEl=null;}
+  hx=hy=0;
+}
+function trackFrame(){
+  if(!handOn)return;
+  const v=$('cam');
+  if(landmarker&&v.readyState>=2){
+    const res=landmarker.detectForVideo(v,performance.now());
+    const lm=res&&res.landmarks&&res.landmarks[0];
+    if(lm){
+      const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+      const size=d(lm[0],lm[9])||.1;
+      const ratio=d(lm[4],lm[8])/size;
+      const pinch=pinching?ratio<.5:ratio<.32;
+      const [x,y]=toScreen((lm[4].x+lm[8].x)/2,(lm[4].y+lm[8].y)/2);
+      feedHand(x,y,pinch);
+      handMsg(pinching?'✊ กำลังหยิบ — ลากไปปล่อยในราง':'🤏 จีบนิ้วโป้งกับนิ้วชี้เพื่อหยิบบล็อก หรือกดปุ่ม');
+    }else if(performance.now()-lastSeen>400){lostHand();handMsg('✋ ยกมือให้กล้องเห็น');}
+  }
+  handLoop=requestAnimationFrame(trackFrame);
+}
+$('btnHand').onclick=async()=>{
+  if(handOn){handOn=false;cancelAnimationFrame(handLoop);lostHand();info.classList.remove('show');$('btnHand').classList.remove('on');return;}
+  handOn=true;$('btnHand').classList.add('on');
+  if(facing!=='user'){facing='user';await startCam();}
+  if(!stream){await startCam();}
+  if(!landmarker){
+    handMsg('⏳ กำลังโหลดระบบจับมือ (ครั้งแรกใช้เวลาสักครู่)…');
+    try{landmarker=await loadLandmarker();}
+    catch(e){handOn=false;$('btnHand').classList.remove('on');handMsg('โหลดระบบจับมือไม่ได้ ตรวจสอบอินเทอร์เน็ต แล้วใช้นิ้วลากบล็อกแทนได้');setTimeout(()=>info.classList.remove('show'),5000);return;}
+  }
+  handMsg('✋ ยกมือให้กล้องเห็น แล้วจีบนิ้วหยิบบล็อก');
+  trackFrame();
+};
+window.ARBOT={feedHand,lostHand,state:()=>({prog:clone(prog),pos:{...pos},mi,running,stats:clone(stats)})};
+
+/* ---------- init ---------- */
+layout();loadMission(0);
+})();
+</script>
+</body>
+</html>

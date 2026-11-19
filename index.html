@@ -63,13 +63,17 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12p
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .goalpin{animation:pin 1.6s ease-in-out infinite}
 @keyframes pin{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.harrow{animation:hpulse 1.2s ease-in-out infinite alternate}
+@keyframes hpulse{from{opacity:.55}to{opacity:1}}
 .goalring{animation:ring 1.4s ease-in-out infinite alternate}
 @keyframes ring{from{stroke-opacity:.35}to{stroke-opacity:1}}
 .goaltop{animation:glow 1.8s ease-in-out infinite alternate}
 @keyframes glow{from{fill:#FFE68A}to{fill:#FFD23F}}
 .hud{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;gap:6px}
 .chip{background:rgba(255,255,255,.9);border-radius:999px;padding:5px 11px;font-family:'Kanit';font-size:13px;box-shadow:0 2px 8px rgba(30,42,68,.12)}
-@media (prefers-reduced-motion: reduce){.cloud,.isle,.goalpin,.goaltop,.goalring{animation:none}}
+@media (prefers-reduced-motion: reduce){.cloud,.isle,.goalpin,.goaltop,.harrow{animation:hpulse 1.2s ease-in-out infinite alternate}
+@keyframes hpulse{from{opacity:.55}to{opacity:1}}
+.goalring{animation:none}}
 
 /* program side */
 .side{padding:16px}
@@ -332,9 +336,13 @@ function drawRobot(g,x,y,h,squash,hop){
   el('circle',{cx:tx,cy:ty-19,r:4.5,fill:'#F4D35E',stroke:'#E0B92E'},k);
 }
 function headingArrow(g,x,y,h){
-  const v=[[TW/2,-TH/2],[TW/2,TH/2],[-TW/2,TH/2],[-TW/2,-TH/2]][h];
-  const len=.36, px=v[0]*len, py=v[1]*len, nx=-v[1]*.12, ny=v[0]*.12*.5;
-  el('polygon',{points:pts([[x+px,y+py],[x+px*.45+nx,y+py*.45+ny*2],[x+px*.45-nx,y+py*.45-ny*2]]),fill:'#A84F12',opacity:.9},g);
+  // drawn on the ground plane: from the robot's tile toward the next tile
+  const ec=[TW/2,TH/2], er=[-TW/2,TH/2];
+  const d=[DX[h],DY[h]], p=[-DY[h],DX[h]];
+  const P=(a,b)=>[x+a*(d[0]*ec[0]+d[1]*er[0])+b*(p[0]*ec[0]+p[1]*er[0]), y+a*(d[0]*ec[1]+d[1]*er[1])+b*(p[0]*ec[1]+p[1]*er[1])];
+  const shape=[P(.28,-.1),P(.82,-.1),P(.82,-.26),P(1.22,0),P(.82,.26),P(.82,.1),P(.28,.1)];
+  el('polygon',{points:pts(shape.map(q=>[q[0],q[1]+2])),fill:'rgba(30,42,68,.25)'},g);
+  el('polygon',{points:pts(shape),fill:'#F07A1A',stroke:'#fff','stroke-width':2.5,'stroke-linejoin':'round',class:running?'':'harrow'},g);
 }
 /* dynamic layer: landmarks + robot in depth order */
 let anim={x:0,y:0,h:0,squash:1,hop:0,depth:0};
@@ -346,6 +354,7 @@ function drawObjects(){
   for(const key in PLACES){const [c,r]=key.split(',').map(Number);if(m.block.some(b=>b[0]===c&&b[1]===r))continue;items.push({d:c+r,c,r,ic:PLACES[key].ic});}
   m.block.forEach(([c,r])=>items.push({d:c+r,c,r,ic:'barrier'}));
   items.push({d:anim.depth,robot:true});
+  if(layerTags)fadeTags();
   items.sort((a,b)=>a.d-b.d);
   const K=(TW/2)/92;
   for(const it of items){
@@ -360,6 +369,7 @@ function drawObjects(){
     el('use',{href:'#ic-'+it.ic,x:x-100*K,y:y-118*K,width:200*K,height:190*K,opacity:here?.35:1},layerObj);
   }
 }
+function fadeTags(){const k=nearTile();layerTags.querySelectorAll('.tag').forEach(t=>t.setAttribute('opacity',t.dataset.c===k?.15:1));}
 function nearTile(){return Math.round(animTile.x)+','+Math.round(animTile.y);}
 let animTile={x:0,y:4};
 function drawTags(){
@@ -371,7 +381,7 @@ function drawTags(){
     const TOP={mountain:84,prang:92,plinth:76,gate:58,jar:50,silk:42,noodles:48};
     const isGoal=m.goal&&m.goal[0]===c&&m.goal[1]===r;
     const x=cx(c,r),y=cy(c,r)-SLAB+TH*.3;
-    const g=el('g',{class:'tag'},layerTags);
+    const g=el('g',{class:'tag','data-c':key},layerTags);
     const t=el('text',{x:x,y:y+10,'text-anchor':'middle','font-family':'Kanit','font-size':12.5,'font-weight':500,fill:'#1E2A44'},g);
     t.textContent=PLACES[key].nm;
     const w=PLACES[key].nm.length*7+12;
@@ -388,7 +398,10 @@ const clone=a=>JSON.parse(JSON.stringify(a));
 const progEl=$('prog'), msg=$('msg');
 function setAnimToPos(){anim.x=cx(pos.x,pos.y);anim.y=cy(pos.x,pos.y)-SLAB;anim.h=pos.h;anim.squash=1;anim.hop=0;anim.depth=pos.x+pos.y+.5;animTile={x:pos.x,y:pos.y};}
 function resetBot(){pos={...START};trail=[];setAnimToPos();drawTrail();drawObjects();updWhere();}
-function updWhere(){$('where').textContent=COLS[pos.x]+(pos.y+1)+' · หันทิศ'+DIR[pos.h];}
+function updWhere(){
+  const ang=[-26.6,26.6,153.4,-153.4][pos.h];
+  $('where').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-4px;transform:rotate('+ang+'deg)"><path d="M4 12 H18 M13 6 L19 12 L13 18" fill="none" stroke="#F07A1A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg> '+COLS[pos.x]+(pos.y+1)+' · หันทิศ'+DIR[pos.h];
+}
 
 /* tween helper */
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
@@ -427,7 +440,7 @@ function render(){
 }
 function edited(){render();resetBot();setMsg('');}
 function setMsg(h,k){msg.className='msg'+(k?' '+k:'');msg.innerHTML=h||defaultMsg();}
-function defaultMsg(){return MISSIONS[mi].goal?'หุ่นยนต์อยู่ที่ <b>A5</b> หันไปทิศ<b>เหนือ</b> (ลูกศรสีส้มใต้หุ่นยนต์บอกทิศที่หันอยู่)':'เขียนโปรแกรมอะไรก็ได้ แล้วกด ▶';}
+function defaultMsg(){return MISSIONS[mi].goal?'หุ่นยนต์อยู่ที่ <b>A5</b> หันไปทิศ<b>เหนือ</b> (ดู<b style="color:#E06A10">ลูกศรสีส้ม</b>ที่พื้น ชี้ทางที่หุ่นยนต์จะเดินไป)':'เขียนโปรแกรมอะไรก็ได้ แล้วกด ▶';}
 function add(t){
   if(running)return;
   const last=prog[prog.length-1];

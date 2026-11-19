@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>หุ่นยนต์ส่งของเมืองโคราช</title>
+<meta name="description" content="เกมฝึกเขียนอัลกอริทึมด้วยการ์ดคำสั่ง วิทยาการคำนวณ ม.1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A44; --paper:#FBF7EF; --accent:#A84F12; --line:#E4DCCB;
+  --f:#8CCB9B; --r:#8EC3EA; --l:#F4D35E; --rep:#F2A65A; --bad:#C62828; --ok:#2E7D32;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:'Sarabun',system-ui,sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:520px;margin:0 auto;padding:12px 14px 28px}
+h1{font-family:'Kanit',sans-serif;font-weight:600;font-size:22px;margin:4px 0 2px;display:flex;align-items:center;gap:8px}
+.sub{font-size:14px;color:#5b6478;margin:0 0 10px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;font-family:'Kanit';font-size:15px;border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff}
+.mission{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 12px;margin:10px 0}
+.mission b{font-family:'Kanit';font-weight:600;font-size:17px;display:block}
+.mission span{font-size:15px}
+.boardwrap{display:grid;grid-template-columns:22px 1fr;grid-template-rows:22px auto;gap:2px}
+.colhd,.rowhd{display:flex;font-family:'Kanit';font-size:13px;color:#7a8295}
+.colhd{grid-column:2}
+.colhd div{flex:1;text-align:center}
+.rowhd{flex-direction:column;grid-row:2}
+.rowhd div{flex:1;display:flex;align-items:center;justify-content:center}
+.board{position:relative;aspect-ratio:1/1;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:3px;background:#d9cfb9;border-radius:14px;padding:3px}
+.tile{background:#F3EBDC;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
+.tile .ic{font-size:clamp(20px,7vw,30px);line-height:1}
+.tile .nm{font-size:clamp(9px,2.5vw,11px);line-height:1.15;margin-top:2px;padding:0 2px;font-weight:600}
+.tile.road{background:#EDE3CF}
+.tile.block{background:repeating-linear-gradient(45deg,#f6d2c4 0 8px,#fbe6dd 8px 16px)}
+.tile.start{box-shadow:inset 0 0 0 3px #8CCB9B}
+.tile.goal{box-shadow:inset 0 0 0 4px #E8B400;animation:goal 1.4s ease-in-out infinite alternate}
+@keyframes goal{from{background:#FFF6C9}to{background:#FFE680}}
+.tile .tag{position:absolute;top:2px;left:3px;font-size:9px;font-family:'Kanit';color:#2E7D32}
+.robot{position:absolute;top:3px;left:3px;width:calc((100% - 6px - 12px)/5);height:calc((100% - 6px - 12px)/5);transition:transform .42s ease-in-out;pointer-events:none;z-index:3}
+.robot .spin{width:100%;height:100%;transition:transform .42s ease-in-out;display:flex;align-items:center;justify-content:center}
+.robot svg{width:72%;height:72%;filter:drop-shadow(0 3px 2px rgba(30,42,68,.35))}
+.robot.hop .spin svg{animation:hop .5s ease-in-out 3}
+@keyframes hop{50%{transform:translateY(-18%) scale(1.06)}}
+.robot.shake .spin svg{animation:shake .45s ease-in-out}
+@keyframes shake{20%{transform:translateX(-10%)}40%{transform:translateX(10%)}60%{transform:translateX(-8%)}80%{transform:translateX(6%)}}
+.section{font-family:'Kanit';font-size:15px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline}
+.section small{font-family:'Sarabun';color:#7a8295;font-size:13px}
+.prog{min-height:64px;background:#fff;border:2px dashed #cfc5b0;border-radius:14px;padding:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.prog .empty{color:#9aa1b1;font-size:14px;padding:0 4px}
+.ck{font-family:'Kanit';min-width:46px;height:46px;border-radius:12px;border:3px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0 6px;font-size:13px;color:var(--ink);position:relative;user-select:none}
+.ck svg{width:28px;height:28px}
+.ck.f{background:var(--f)} .ck.r{background:var(--r)} .ck.l{background:var(--l)}
+.ck .n,.rep>.n{position:absolute;top:-7px;left:-5px;background:var(--ink);color:#fff;border-radius:999px;font-size:10px;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.ck.now{border-color:var(--ink);transform:translateY(-4px);box-shadow:0 4px 0 rgba(30,42,68,.25)}
+.ck.bad{border-color:var(--bad);animation:badblink .5s ease-in-out 2}
+@keyframes badblink{50%{transform:scale(1.12)}}
+.rep{position:relative;display:inline-flex;align-items:center;gap:5px;border:3px dashed var(--rep);border-radius:14px;padding:3px 5px;background:#FFF3E6}
+.rep .rl{font-family:'Kanit';background:var(--rep);border-radius:10px;padding:0 8px;height:40px;display:flex;align-items:center;font-size:14px;cursor:pointer;white-space:nowrap}
+.rep .hole{min-width:46px;height:46px;border-radius:12px;border:2px dashed #e0a56b;display:flex;align-items:center;justify-content:center;font-size:11px;color:#b5651d;text-align:center;line-height:1.1}
+.rep.now{box-shadow:0 0 0 3px var(--ink)}
+.palette{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pbtn{font-family:'Kanit';border:none;border-radius:14px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:14px;color:var(--ink);cursor:pointer;box-shadow:0 3px 0 rgba(30,42,68,.22)}
+.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(30,42,68,.22)}
+.pbtn svg{width:32px;height:32px}
+.pbtn.f{background:var(--f)} .pbtn.r{background:var(--r)} .pbtn.l{background:var(--l)} .pbtn.rp{background:var(--rep)}
+.pbtn .big{font-size:22px;line-height:32px;height:32px}
+.ctrl{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:10px}
+.cbtn{font-family:'Kanit';font-size:17px;border-radius:14px;border:2px solid var(--ink);background:#fff;color:var(--ink);padding:11px 6px;cursor:pointer}
+.cbtn.run{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.cbtn:disabled,.pbtn:disabled{opacity:.45;cursor:default}
+.msg{margin-top:12px;border-radius:14px;padding:10px 12px;font-size:16px;line-height:1.45;background:#fff;border:2px solid var(--line);min-height:48px}
+.msg.ok{background:#E8F5E9;border-color:#9fd3a6}
+.msg.err{background:#FDECEA;border-color:#f2b1aa}
+.msg b{font-family:'Kanit';font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:#5b6478;margin-top:8px}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:12px;color:#8a90a0}
+.linkbtn{background:none;border:none;color:#8a90a0;text-decoration:underline;font-size:12px;cursor:pointer;font-family:inherit;padding:4px}
+.stars{font-size:22px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🤖 หุ่นยนต์ส่งของเมืองโคราช</h1>
+  <p class="sub">เรียงการ์ดคำสั่ง แล้วกด ▶ ให้หุ่นยนต์ทำงาน · วิทยาการคำนวณ ม.1</p>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="mission" id="mission"></div>
+
+  <div class="boardwrap">
+    <div class="colhd"><div>A</div><div>B</div><div>C</div><div>D</div><div>E</div></div>
+    <div class="rowhd"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div>
+    <div class="board" id="board">
+      <div class="robot" id="robot"><div class="spin" id="spin">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M32 2 L40 12 H24 Z" fill="#A84F12"/>
+          <rect x="12" y="14" width="40" height="40" rx="10" fill="#4C7BD9" stroke="#1E2A44" stroke-width="3"/>
+          <rect x="18" y="20" width="28" height="16" rx="6" fill="#EAF2FF" stroke="#1E2A44" stroke-width="2"/>
+          <circle cx="26" cy="28" r="3.2" fill="#1E2A44"/><circle cx="38" cy="28" r="3.2" fill="#1E2A44"/>
+          <rect x="22" y="40" width="20" height="10" rx="2" fill="#D9A066" stroke="#1E2A44" stroke-width="2"/>
+          <path d="M32 40 V50" stroke="#1E2A44" stroke-width="2"/>
+          <rect x="6" y="24" width="6" height="18" rx="3" fill="#1E2A44"/><rect x="52" y="24" width="6" height="18" rx="3" fill="#1E2A44"/>
+        </svg>
+      </div></div>
+    </div>
+  </div>
+  <div class="legend"><span>▲ หัวหุ่นยนต์ = ทิศที่หันอยู่</span><span>🟩 จุดเริ่ม</span><span>🟨 จุดหมาย</span></div>
+
+  <div class="section">โปรแกรมของฉัน <small id="count">0 ใบ</small></div>
+  <div class="prog" id="prog"></div>
+
+  <div class="section">การ์ดคำสั่ง <small>แตะการ์ดในโปรแกรมเพื่อเปลี่ยนชนิด</small></div>
+  <div class="palette">
+    <button class="pbtn f" data-add="f"><svg viewBox="0 0 24 24"><path d="M12 20 V5 M6 11 L12 5 L18 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>เดินหน้า</button>
+    <button class="pbtn r" data-add="r"><svg viewBox="0 0 24 24"><path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันขวา</button>
+    <button class="pbtn l" data-add="l"><svg viewBox="0 0 24 24"><path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11" fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>หันซ้าย</button>
+    <button class="pbtn rp" data-add="rep"><span class="big">🔁</span>ทำซ้ำ</button>
+  </div>
+  <div class="ctrl">
+    <button class="cbtn run" id="run">▶ ให้หุ่นยนต์ทำงาน</button>
+    <button class="cbtn" id="undo">⌫ ลบ</button>
+    <button class="cbtn" id="clear">ล้าง</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="foot">
+    <span>ว 4.2 ม.1/1 · แนวคิดเชิงคำนวณ</span>
+    <button class="linkbtn" id="answer">ครู: แสดงเฉลย</button>
+  </div>
+</div>
+
+<script>
+(function(){
+const COLS='ABCDE';
+const PLACES={
+  '0,0':{ic:'⛰️',nm:'เขาใหญ่'},
+  '2,0':{ic:'🌼',nm:'อนุสาวรีย์ท้าวสุรนารี'},
+  '4,0':{ic:'🛕',nm:'ปราสาทหินพิมาย'},
+  '2,2':{ic:'🏯',nm:'ประตูชุมพล'},
+  '4,2':{ic:'🏺',nm:'ด่านเกวียน'},
+  '0,4':{ic:'🍜',nm:'ร้านผัดหมี่'},
+  '4,4':{ic:'🧵',nm:'ผ้าไหมปักธงชัย'}
+};
+const ARROW={
+  f:'<path d="M12 20 V5 M6 11 L12 5 L18 11"/>',
+  r:'<path d="M7 20 V11 Q7 7 11 7 H19 M15 3 L19 7 L15 11"/>',
+  l:'<path d="M17 20 V11 Q17 7 13 7 H5 M9 3 L5 7 L9 11"/>'
+};
+const NAME={f:'เดินหน้า',r:'หันขวา',l:'หันซ้าย'};
+const DIR=['เหนือ','ตะวันออก','ใต้','ตะวันตก'];
+const DX=[0,1,0,-1], DY=[-1,0,1,0];
+const F={t:'f'},R={t:'r'},L={t:'l'};
+const MISSIONS=[
+  {tab:'ภารกิจ 1',title:'ส่งผัดหมี่ไปประตูชุมพล',text:'หุ่นยนต์อยู่ที่ร้านผัดหมี่ (A5) หันหน้าขึ้นทิศเหนือ ช่วยพาไปส่งของที่ประตูชุมพล (C3)',goal:[2,2],block:[],answer:[F,F,R,F,F]},
+  {tab:'ภารกิจ 2',title:'ถนนปิด! อ้อมไปอนุสาวรีย์ฯ',text:'ช่อง A3 ปิดซ่อมถนน 🚧 หาเส้นทางใหม่ไปส่งพวงมาลัยที่อนุสาวรีย์ท้าวสุรนารี (C1)',goal:[2,0],block:[[0,2]],answer:[R,F,F,L,F,F,F,F]},
+  {tab:'ภารกิจ 3',title:'ส่งของไกล ใช้การ์ดให้น้อย',text:'ไปปราสาทหินพิมาย (E1) โดยใช้การ์ดไม่เกิน 6 ใบ 💡 ใช้การ์ด 🔁 ทำซ้ำ ช่วยได้',goal:[4,0],block:[],limit:6,answer:[R,{t:'rep',n:4,body:F},L,{t:'rep',n:4,body:F}]},
+  {tab:'ซ่อมคำสั่ง',title:'นักสืบหาบั๊ก (Debugging)',text:'เพื่อนเขียนโปรแกรมไปประตูชุมพล (C3) แต่หุ่นยนต์หลงทาง กด ▶ ดูก่อน แล้วแตะการ์ดใบที่ผิดเพื่อแก้',goal:[2,2],block:[],preset:[F,F,L,F,F],answer:[F,F,R,F,F]},
+  {tab:'เล่นอิสระ',title:'โหมดอิสระ',text:'ตั้งโจทย์ให้เพื่อน แล้วลองเขียนโปรแกรมไปที่ไหนก็ได้ในโคราช',goal:null,block:[],answer:null}
+];
+const START={x:0,y:4,h:0};
+
+const $=id=>document.getElementById(id);
+const board=$('board'),robot=$('robot'),spin=$('spin'),progEl=$('prog'),msg=$('msg');
+let mi=0, prog=[], running=false, pos={...START}, rot=0;
+const clone=a=>JSON.parse(JSON.stringify(a));
+
+function buildBoard(){
+  board.querySelectorAll('.tile').forEach(t=>t.remove());
+  const m=MISSIONS[mi];
+  for(let y=0;y<5;y++)for(let x=0;x<5;x++){
+    const t=document.createElement('div');
+    t.className='tile';
+    const p=PLACES[x+','+y];
+    const blocked=m.block.some(b=>b[0]===x&&b[1]===y);
+    if(blocked){t.classList.add('block');t.innerHTML='<div class="ic">🚧</div><div class="nm">ถนนปิด</div>';}
+    else if(p){t.innerHTML='<div class="ic">'+p.ic+'</div><div class="nm">'+p.nm+'</div>';}
+    else t.classList.add('road');
+    if(x===START.x&&y===START.y){t.classList.add('start');t.insertAdjacentHTML('beforeend','<span class="tag">เริ่ม</span>');}
+    if(m.goal&&m.goal[0]===x&&m.goal[1]===y)t.classList.add('goal');
+    t.setAttribute('aria-label',COLS[x]+(y+1)+(p?' '+p.nm:'')+(blocked?' ถนนปิด':''));
+    board.insertBefore(t,robot);
+  }
+}
+function place(instant){
+  if(instant){robot.style.transition='none';spin.style.transition='none';}
+  robot.style.transform='translate(calc('+pos.x+' * (100% + 3px)),calc('+pos.y+' * (100% + 3px)))';
+  spin.style.transform='rotate('+rot+'deg)';
+  if(instant){robot.offsetWidth;robot.style.transition='';spin.style.transition='';}
+}
+function resetRobot(){pos={...START};rot=0;robot.classList.remove('hop','shake');place(true);}
+
+function chip(it,label,path){
+  const d=document.createElement('div');
+  d.className='ck '+it.t;
+  d.innerHTML='<svg viewBox="0 0 24 24"><g fill="none" stroke="#1E2A44" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'+ARROW[it.t]+'</g></svg>'+(label?'<span class="n">'+label+'</span>':'');
+  d.setAttribute('role','button');
+  d.setAttribute('aria-label',NAME[it.t]+' แตะเพื่อเปลี่ยน');
+  d.dataset.path=path;
+  d.onclick=()=>{if(running)return;it.t={f:'r',r:'l',l:'f'}[it.t];edited();};
+  return d;
+}
+function countCards(){let c=0;prog.forEach(it=>{c+=it.t==='rep'?(it.body?2:1):1;});return c;}
+function render(){
+  progEl.innerHTML='';
+  if(!prog.length){progEl.innerHTML='<span class="empty">แตะการ์ดคำสั่งด้านล่างเพื่อเริ่มเขียนโปรแกรม</span>';}
+  prog.forEach((it,i)=>{
+    if(it.t==='rep'){
+      const g=document.createElement('div');g.className='rep';g.dataset.path=String(i);
+      const lb=document.createElement('div');lb.className='rl';lb.textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';
+      lb.setAttribute('role','button');lb.setAttribute('aria-label','ทำซ้ำ '+it.n+' ครั้ง แตะเพื่อเปลี่ยนจำนวน');
+      lb.onclick=()=>{if(running)return;it.n=it.n>=5?2:it.n+1;edited();};
+      g.appendChild(lb);
+      if(it.body)g.appendChild(chip(it.body,'',i+'.0'));
+      else{const h=document.createElement('div');h.className='hole';h.textContent='ใส่การ์ด';g.appendChild(h);}
+      const n=document.createElement('span');n.className='n';n.textContent=String(i+1);g.appendChild(n);
+      progEl.appendChild(g);
+    } else progEl.appendChild(chip(it,String(i+1),String(i)));
+  });
+  $('count').textContent=countCards()+' ใบ'+(MISSIONS[mi].limit?' (ไม่เกิน '+MISSIONS[mi].limit+')':'');
+}
+function edited(){render();resetRobot();setMsg('');}
+function setMsg(html,kind){msg.className='msg'+(kind?' '+kind:'');msg.innerHTML=html||defaultMsg();}
+function defaultMsg(){const m=MISSIONS[mi];return m.goal?'หุ่นยนต์หันหน้าไปทิศ<b>เหนือ</b> (ขึ้นด้านบน) เริ่มที่ช่อง A5':'เขียนโปรแกรมอะไรก็ได้ แล้วกด ▶';}
+
+function add(t){
+  if(running)return;
+  const last=prog[prog.length-1];
+  if(t==='rep'){
+    if(last&&last.t==='rep'&&!last.body){setMsg('ใส่การ์ดลงในช่อง <b>ทำซ้ำ</b> ก่อนนะ','err');return;}
+    prog.push({t:'rep',n:2,body:null});
+  } else if(last&&last.t==='rep'&&!last.body){last.body={t};}
+  else prog.push({t});
+  edited();
+}
+
+function loadMission(i){
+  if(running)return;
+  mi=i;const m=MISSIONS[i];
+  document.querySelectorAll('.tab').forEach((b,k)=>{b.classList.toggle('on',k===i);b.setAttribute('aria-selected',k===i);});
+  $('mission').innerHTML='<b>'+m.title+'</b><span>'+m.text+'</span>';
+  prog=m.preset?clone(m.preset):[];
+  $('answer').style.display=m.answer?'':'none';
+  buildBoard();render();resetRobot();setMsg('');
+}
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function mark(path,cls){
+  progEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
+  if(path==null)return;
+  const el=progEl.querySelector('[data-path="'+path+'"]');
+  if(el)el.classList.add(cls||'now');
+  const top=path.split('.')[0];
+  if(path.includes('.')){const g=progEl.querySelector('.rep[data-path="'+top+'"]');if(g)g.classList.add('now');}
+}
+function cell(x,y){return COLS[x]+(y+1);}
+function placeName(x,y){const p=PLACES[x+','+y];return cell(x,y)+(p?' ('+p.nm+')':'');}
+
+async function step(it,path,num){
+  mark(path);
+  if(it.t==='r'){rot+=90;pos.h=(pos.h+1)%4;place();await sleep(520);return true;}
+  if(it.t==='l'){rot-=90;pos.h=(pos.h+3)%4;place();await sleep(520);return true;}
+  const nx=pos.x+DX[pos.h], ny=pos.y+DY[pos.h];
+  const out=nx<0||ny<0||nx>4||ny>4;
+  const blk=!out&&MISSIONS[mi].block.some(b=>b[0]===nx&&b[1]===ny);
+  if(out||blk){
+    robot.classList.add('shake');await sleep(500);robot.classList.remove('shake');
+    progEl.querySelectorAll('.now').forEach(e=>e.classList.remove('now'));
+    const el=progEl.querySelector('[data-path="'+path+'"]');if(el)el.classList.add('bad');
+    setMsg('💥 <b>การ์ดใบที่ '+num+' ('+NAME[it.t]+')</b> ทำให้หุ่นยนต์'+(out?'ออกนอกแผนที่':'ชนถนนปิด')+' ตอนนี้หุ่นยนต์อยู่ที่ '+cell(pos.x,pos.y)+' หันไปทิศ'+DIR[pos.h]+' ลองไล่ดูการ์ดตั้งแต่ใบแรกว่าควรแก้ใบไหน','err');
+    return false;
+  }
+  pos.x=nx;pos.y=ny;place();await sleep(520);return true;
+}
+
+async function run(){
+  if(running)return;
+  if(!prog.length){setMsg('ยังไม่มีการ์ดเลย แตะการ์ดคำสั่งด้านล่างก่อนนะ','err');return;}
+  const hole=prog.findIndex(it=>it.t==='rep'&&!it.body);
+  if(hole>=0){setMsg('ช่อง <b>ทำซ้ำ</b> ยังว่างอยู่ ใส่การ์ดลงไปก่อนนะ','err');return;}
+  progEl.querySelectorAll('.bad').forEach(e=>e.classList.remove('bad'));
+  resetRobot();await sleep(80);
+  running=true;setBusy(true);setMsg('🤖 กำลังทำงานตามคำสั่ง…');
+  let ok=true;
+  for(let i=0;i<prog.length&&ok;i++){
+    const it=prog[i];
+    if(it.t==='rep'){
+      for(let k=0;k<it.n&&ok;k++){
+        const lb=progEl.querySelector('.rep[data-path="'+i+'"] .rl');
+        if(lb)lb.textContent='🔁 ทำซ้ำ รอบที่ '+(k+1)+'/'+it.n;
+        ok=await step(it.body,i+'.0',(i+1)+' (ทำซ้ำรอบที่ '+(k+1)+')');
+      }
+    } else ok=await step(it,String(i),i+1);
+  }
+  mark(null);
+  running=false;setBusy(false);
+  if(!ok){keepBadAfterRender();return;}
+  render();
+  finish();
+}
+let badPath=null;
+function keepBadAfterRender(){
+  running=false;
+  // relabel repeat labels without clearing the red card
+  progEl.querySelectorAll('.rep').forEach(g=>{const it=prog[+g.dataset.path];g.querySelector('.rl').textContent='🔁 ทำซ้ำ '+it.n+' ครั้ง';});
+}
+function finish(){
+  const m=MISSIONS[mi];
+  const here=placeName(pos.x,pos.y);
+  if(!m.goal){setMsg('✅ หุ่นยนต์หยุดที่ <b>'+here+'</b> หันไปทิศ'+DIR[pos.h],'ok');return;}
+  if(pos.x===m.goal[0]&&pos.y===m.goal[1]){
+    const n=countCards();
+    robot.classList.add('hop');
+    if(m.limit&&n>m.limit){setMsg('📦 ส่งของถึงแล้ว! แต่ใช้การ์ด '+n+' ใบ เกิน '+m.limit+' ใบ ลองใช้ 🔁 ทำซ้ำ แทนการ์ดเดินหน้าที่ซ้ำกันดูนะ','ok');return;}
+    setMsg('<div class="stars">⭐⭐⭐</div>🎉 <b>ส่งของสำเร็จ!</b> ถึง '+placeName(m.goal[0],m.goal[1])+' ใช้การ์ด '+n+' ใบ'+(mi<3?' · ลองภารกิจถัดไปได้เลย':''),'ok');
+  } else {
+    setMsg('🤔 หุ่นยนต์หยุดที่ <b>'+here+'</b> ยังไม่ถึง '+placeName(m.goal[0],m.goal[1])+' ลองไล่ดูการ์ดทีละใบว่าหุ่นยนต์ควรหันไปทางไหน','err');
+  }
+}
+function setBusy(b){document.querySelectorAll('.pbtn,.cbtn,.tab,#answer').forEach(e=>e.disabled=b);}
+
+MISSIONS.forEach((m,i)=>{const b=document.createElement('button');b.className='tab';b.textContent=m.tab;b.setAttribute('role','tab');b.onclick=()=>loadMission(i);$('tabs').appendChild(b);});
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>add(b.dataset.add));
+$('run').onclick=run;
+$('undo').onclick=()=>{if(running||!prog.length)return;const last=prog[prog.length-1];if(last.t==='rep'&&last.body)last.body=null;else prog.pop();edited();};
+$('clear').onclick=()=>{if(running)return;prog=[];edited();};
+$('answer').onclick=()=>{const m=MISSIONS[mi];if(!m.answer||running)return;prog=clone(m.answer);edited();setMsg('📖 นี่คือคำตอบตัวอย่าง กด ▶ เพื่อดูหุ่นยนต์ทำงาน');};
+window.addEventListener('resize',()=>place(true));
+loadMission(0);
+})();
+</script>
+</body>
+</html>

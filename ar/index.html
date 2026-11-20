@@ -145,6 +145,7 @@ table.stats th{font-family:'Kanit';font-weight:600}
 
 <div id="app">
   <div class="top">
+    <a class="pill" id="btnBack" href="/" style="text-decoration:none;color:var(--ink)" aria-label="กลับไปเว็บจำลองแบบปกติ">← เวอร์ชันปกติ</a>
     <div class="brand">🤖 AR หุ่นยนต์ส่งของเมืองโคราช</div>
     <button class="pill" id="btnHand">✋ หยิบด้วยมือ</button>
     <button class="pill" id="btnCam">🔄 สลับกล้อง</button>
@@ -629,7 +630,7 @@ const MAG=70; // px: how far from a block the pinch still grabs it
 function distTo(el,x,y){const r=el.getBoundingClientRect();const dx=Math.max(r.left-x,0,x-r.right),dy=Math.max(r.top-y,0,y-r.bottom);return Math.hypot(dx,dy);}
 function nearestOf(sel,x,y,max){let best=null,bd=max;document.querySelectorAll(sel).forEach(el=>{const d=distTo(el,x,y);if(d<bd){bd=d;best=el;}});return best;}
 function nearestGrab(x,y){return running?null:nearestOf('#tray .blk, #rail .blk',x,y,MAG);}
-function nearestPress(x,y){return nearestOf('button:not(:disabled), .rl',x,y,40);}
+function nearestPress(x,y){return nearestOf('button:not(:disabled), .rl, a.pill',x,y,40);}
 function lostHand(){
   handEl.classList.remove('show');if(hoverEl){hoverEl.classList.remove('aim');hoverEl=null;}
   if(pinching){pinching=false;handEl.classList.remove('pinch');if(drag&&drag.hand)drop(hx,hy);pinchEl=null;}
